@@ -1,19 +1,33 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import { CardType, CARD_INFO } from '../types/game';
 
 interface CardStackProps {
   cardType: CardType;
   count: number;
   isDanger?: boolean;
+  isHighlighted?: boolean;
 }
 
 export const CardStack: React.FC<CardStackProps> = ({
   cardType,
   count,
-  isDanger = false
+  isDanger = false,
+  isHighlighted = false
 }) => {
   const cardInfo = CARD_INFO[cardType];
+
+  const borderStyle = isHighlighted
+    ? styles.highlightedBorder
+    : isDanger
+      ? styles.dangerBorder
+      : styles.normalBorder;
+
+  const shadowStyle = isHighlighted
+    ? styles.highlightedShadow
+    : isDanger
+      ? styles.dangerShadow
+      : {};
 
   return (
     <View style={styles.container}>
@@ -22,40 +36,38 @@ export const CardStack: React.FC<CardStackProps> = ({
           <View style={[
             styles.card,
             styles.stackedCard3,
-            isDanger ? styles.dangerBorder : styles.normalBorder
-          ]} />
+            borderStyle
+          ]}>
+            <Image source={cardInfo.image} style={styles.cardImage} resizeMode="contain" />
+          </View>
         )}
         {count > 2 && (
           <View style={[
             styles.card,
             styles.stackedCard2,
-            isDanger ? styles.dangerBorder : styles.normalBorder
-          ]} />
+            borderStyle
+          ]}>
+            <Image source={cardInfo.image} style={styles.cardImage} resizeMode="contain" />
+          </View>
         )}
         {count > 1 && (
           <View style={[
             styles.card,
             styles.stackedCard1,
-            isDanger ? styles.dangerBorder : styles.normalBorder
-          ]} />
+            borderStyle
+          ]}>
+            <Image source={cardInfo.image} style={styles.cardImage} resizeMode="contain" />
+          </View>
         )}
 
         <View style={[
           styles.card,
           styles.mainCard,
-          isDanger ? styles.dangerBorder : styles.normalBorder,
-          isDanger && styles.dangerShadow
+          borderStyle,
+          shadowStyle
         ]}>
-          <Text style={styles.emoji}>{cardInfo.emoji}</Text>
-          <Text style={styles.cardName}>{cardInfo.name}</Text>
+          <Image source={cardInfo.image} style={styles.cardImage} resizeMode="contain" />
         </View>
-      </View>
-
-      <View style={styles.countContainer}>
-        <Text style={[styles.count, isDanger && styles.dangerText]}>
-          {count}
-        </Text>
-        {isDanger && <Text style={styles.warningIcon}>⚠️</Text>}
       </View>
     </View>
   );
@@ -69,17 +81,18 @@ const styles = StyleSheet.create({
   },
   cardStackWrapper: {
     position: 'relative',
-    width: 60,
-    height: 80,
+    width: 80,
+    height: 100,
     marginRight: 8,
   },
   card: {
-    width: 60,
-    height: 80,
+    width: 80,
+    height: 100,
     borderRadius: 8,
-    backgroundColor: '#2D2D2D',
+    // backgroundColor: '#2D2D2D', // 背景色を削除
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden', // 画像がはみ出ないようにする
   },
   mainCard: {
     position: 'absolute',
@@ -94,28 +107,29 @@ const styles = StyleSheet.create({
   },
   stackedCard1: {
     position: 'absolute',
-    top: 4,
-    left: 4,
+    top: 8,
+    left: 8,
     zIndex: 1,
     opacity: 0.9,
   },
   stackedCard2: {
     position: 'absolute',
-    top: 8,
-    left: 8,
+    top: 16,
+    left: 16,
     zIndex: 0,
     opacity: 0.85,
   },
   stackedCard3: {
     position: 'absolute',
-    top: 12,
-    left: 12,
+    top: 24,
+    left: 24,
     zIndex: -1,
     opacity: 0.8,
   },
   normalBorder: {
-    borderWidth: 2,
-    borderColor: '#FFA726',
+    // borderWidth: 2,
+    // borderColor: '#FFA726',
+    borderWidth: 0,
   },
   dangerBorder: {
     borderWidth: 2,
@@ -125,9 +139,19 @@ const styles = StyleSheet.create({
     shadowColor: '#EF5350',
     shadowOpacity: 0.8,
   },
-  emoji: {
-    fontSize: 32,
-    marginBottom: 4,
+  highlightedBorder: {
+    borderWidth: 3,
+    borderColor: '#FF1744', // 鮮やかな赤
+  },
+  highlightedShadow: {
+    shadowColor: '#FF1744',
+    shadowOpacity: 0.9,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  cardImage: {
+    width: '100%',
+    height: '100%',
   },
   cardName: {
     fontSize: 10,

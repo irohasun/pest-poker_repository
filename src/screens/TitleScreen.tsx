@@ -1,12 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 
 interface TitleScreenProps {
   onStartGame: () => void;
+  onShowRules?: () => void;
 }
 
-export const TitleScreen: React.FC<TitleScreenProps> = ({ onStartGame }) => {
+export const TitleScreen: React.FC<TitleScreenProps> = ({ onStartGame, onShowRules }) => {
   const bounceAnim = React.useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
@@ -31,48 +33,47 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({ onStartGame }) => {
       colors={['#1E1E1E', '#121212', '#0A0A0A']}
       style={styles.container}
     >
-      <View style={styles.content}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>BLUFF CARD</Text>
-          <Text style={styles.subtitle}>GAME</Text>
-        </View>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
+        <View style={styles.content}>
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>PESTPOKER</Text>
+          </View>
 
-        <Animated.View style={[styles.emojisContainer, { transform: [{ translateY: bounceAnim }] }]}>
-          <Text style={styles.emoji}>🦇</Text>
-          <Text style={styles.emoji}>🕷️</Text>
-          <Text style={styles.emoji}>🦂</Text>
-          <Text style={styles.emoji}>🐭</Text>
-          <Text style={styles.emoji}>🐸</Text>
-          <Text style={styles.emoji}>🪰</Text>
-          <Text style={styles.emoji}>🪲</Text>
-          <Text style={styles.emoji}>🦟</Text>
-        </Animated.View>
+          <Animated.View style={[styles.emojisContainer, { transform: [{ translateY: bounceAnim }] }]}>
+            <Text style={styles.emoji}>🦇</Text>
+            <Text style={styles.emoji}>🕷️</Text>
+            <Text style={styles.emoji}>🦂</Text>
+            <Text style={styles.emoji}>🐭</Text>
+            <Text style={styles.emoji}>🐸</Text>
+            <Text style={styles.emoji}>🪰</Text>
+            <Text style={styles.emoji}>🪲</Text>
+            <Text style={styles.emoji}>🦟</Text>
+          </Animated.View>
 
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={onStartGame}
-            activeOpacity={0.8}
-          >
-            <LinearGradient
-              colors={['#C62828', '#D32F2F']}
-              style={styles.buttonGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
+          <View style={styles.buttonsContainer}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={onStartGame}
+              activeOpacity={0.8}
             >
-              <Text style={styles.primaryButtonText}>▶ ゲーム開始</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+              <LinearGradient
+                colors={['#C62828', '#D32F2F']}
+                style={styles.buttonGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              >
+                <Text style={styles.primaryButtonText}>▶ ゲーム開始</Text>
+              </LinearGradient>
+            </TouchableOpacity>
 
-          <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.8}>
-            <Text style={styles.secondaryButtonText}>ルール説明</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.8}>
-            <Text style={styles.secondaryButtonText}>設定</Text>
-          </TouchableOpacity>
+            {onShowRules && (
+              <TouchableOpacity style={styles.secondaryButton} onPress={onShowRules} activeOpacity={0.8}>
+                <Text style={styles.secondaryButtonText}>ルール説明</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
-      </View>
+      </SafeAreaView>
     </LinearGradient>
   );
 };
@@ -80,14 +81,17 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({ onStartGame }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  safeArea: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
   },
   content: {
     alignItems: 'center',
     width: '100%',
     maxWidth: 400,
+    padding: 20,
   },
   titleContainer: {
     borderWidth: 4,

@@ -1,14 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Player } from '../types/game';
+import { Player, CardType } from '../types/game';
 import { CardStack } from './CardStack';
 
 interface PlayerStatusProps {
   player: Player;
   isCurrentPlayer: boolean;
+  role?: string;
+  highlightCardType?: CardType; // 変更: highlightCards -> highlightCardType
 }
 
-export const PlayerStatus: React.FC<PlayerStatusProps> = ({ player, isCurrentPlayer }) => {
+export const PlayerStatus: React.FC<PlayerStatusProps> = ({ player, isCurrentPlayer, role, highlightCardType }) => {
   const openCardEntries = Object.entries(player.openCards);
   const hasOpenCards = openCardEntries.length > 0;
 
@@ -24,7 +26,6 @@ export const PlayerStatus: React.FC<PlayerStatusProps> = ({ player, isCurrentPla
         <View style={styles.nameContainer}>
           <Text style={[styles.playerName, isCurrentPlayer && styles.currentPlayerName]}>
             {player.name}
-            {player.id === 'player-0' && ' (あなた)'}
           </Text>
           {player.isEliminated && (
             <View style={styles.badge}>
@@ -37,6 +38,13 @@ export const PlayerStatus: React.FC<PlayerStatusProps> = ({ player, isCurrentPla
             </View>
           )}
         </View>
+        
+        {role && (
+          <View style={styles.roleContainer}>
+            <Text style={styles.roleText}>{role}</Text>
+          </View>
+        )}
+
         <Text style={styles.handCount}>手札: {player.handCount}枚</Text>
       </View>
 
@@ -45,12 +53,14 @@ export const PlayerStatus: React.FC<PlayerStatusProps> = ({ player, isCurrentPla
           <View style={styles.cardsGrid}>
             {openCardEntries.map(([cardType, count]) => {
               const isDanger = count >= 4 || openCardEntries.length >= 8;
+              const isHighlighted = highlightCardType === cardType;
               return (
                 <CardStack
                   key={cardType}
                   cardType={cardType as any}
                   count={count}
                   isDanger={isDanger}
+                  isHighlighted={isHighlighted}
                 />
               );
             })}
@@ -93,6 +103,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 12,
+    position: 'relative',
+  },
+  roleContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    pointerEvents: 'none', // 名前や手札数と重なってもタップの邪魔をしないように
+  },
+  roleText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#FFD54F',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    overflow: 'hidden',
   },
   nameContainer: {
     flexDirection: 'row',

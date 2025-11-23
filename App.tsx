@@ -1,35 +1,247 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { GameState } from './src/types/game';
-import { initializeGame } from './src/utils/gameLogic';
+import { Asset } from 'expo-asset';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { CARD_INFO } from './src/types/game';
 import { TitleScreen } from './src/screens/TitleScreen';
-import { GameScreen } from './src/screens/GameScreen';
+import { PlayerSetupScreen } from './src/screens/PlayerSetupScreen';
+import { InitialHandScreen } from './src/screens/InitialHandScreen';
+import { QuestionerSelectionScreen } from './src/screens/QuestionerSelectionScreen';
+import { GameMainScreen } from './src/screens/GameMainScreen';
+import { QuestionerCardSelectionScreen } from './src/screens/QuestionerCardSelectionScreen';
+import { AnswererJudgmentScreen } from './src/screens/AnswererJudgmentScreen';
+import { CardCheckScreen } from './src/screens/CardCheckScreen';
+import { PassOpponentSelectionScreen } from './src/screens/PassOpponentSelectionScreen';
+import { PassDeclarationScreen } from './src/screens/PassDeclarationScreen';
+import { ResultScreen } from './src/screens/ResultScreen';
+import { useGameFlow } from './src/hooks/useGameFlow';
+import { COLORS } from './src/constants/theme';
 
 export default function App() {
-  const [gameState, setGameState] = useState<GameState | null>(null);
+  const {
+    gameState,
+    currentScreen,
+    initialHandPlayerIndex,
+    passSelectedOpponent,
+    lastJudgment,
+    cardRecipientIndex,
+    startGame,
+    completePlayerSetup,
+    handleInitialHandNext,
+    completeInitialHand,
+    selectQuestioner,
+    updateGameState,
+    startTurn,
+    completeQuestionerCardSelection,
+    makeJudgmentCall,
+    completeResult,
+    handlePass,
+    completeCardCheck,
+    selectPassOpponent,
+    completePassDeclaration,
+    navigateTo,
+  } = useGameFlow();
 
-  const handleStartGame = () => {
-    const newGame = initializeGame(3);
-    setGameState(newGame);
-  };
+  const [isReady, setIsReady] = useState(false);
 
-  const handleUpdateGameState = (newState: GameState) => {
-    setGameState(newState);
-  };
+  // 画像プリロード処理
+  useEffect(() => {
+    const preloadAssets = async () => {
+      try {
+        const imageAssets = Object.values(CARD_INFO).map(info => {
+          return Asset.fromModule(info.image).downloadAsync();
+        });
 
-  if (!gameState || gameState.phase === 'title') {
+        // 裏面画像のプリロードを追加
+        const backsideImage = require('./assets/cards/backside.png');
+        imageAssets.push(Asset.fromModule(backsideImage).downloadAsync());
+
+        await Promise.all(imageAssets);
+      } catch (e) {
+        console.warn('Failed to load assets:', e);
+      } finally {
+        setIsReady(true);
+      }
+    };
+
+    preloadAssets();
+  }, []);
+
+  if (!isReady) {
     return (
-      <>
-        <StatusBar style="light" />
-        <TitleScreen onStartGame={handleStartGame} />
-      </>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <View style={styles.loadingContainer}>
+          <StatusBar style="light" />
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      </GestureHandlerRootView>
     );
   }
 
+  // タイトル画面
+  if (currentScreen === 'title') {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar style="light" />
+        <TitleScreen onStartGame={startGame} />
+      </GestureHandlerRootView>
+    );
+  }
+
+  if (!gameState) return null;
+
+  // プレイヤー登録画面
+  if (currentScreen === 'setup') {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar style="light" />
+        <PlayerSetupScreen
+          onComplete={completePlayerSetup}
+          onBack={() => navigateTo('title')}
+        />
+      </GestureHandlerRootView>
+    );
+  }
+
+  // 初期手札確認画面
+  if (currentScreen === 'initialHand') {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar style="light" />
+        <InitialHandScreen
+          players={gameState.players}
+          currentPlayerIndex={initialHandPlayerIndex}
+          onComplete={completeInitialHand}
+          onNextPlayer={handleInitialHandNext}
+        />
+      </GestureHandlerRootView>
+    );
+  }
+
+  // 出題者決定画面
+  if (currentScreen === 'questionerSelection') {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar style="light" />
+        <QuestionerSelectionScreen
+          gameState={gameState}
+          onSelectQuestioner={selectQuestioner}
+        />
+      </GestureHandlerRootView>
+    );
+  }
+
+  // 出題者：カード選択画面（統合版）
+  if (currentScreen === 'questionerCardSelection') {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar style="light" />
+        <QuestionerCardSelectionScreen
+          gameState={gameState}
+          onUpdateGameState={updateGameState}
+          onNext={completeQuestionerCardSelection}
+          onBack={() => navigateTo('gameMain')}
+        />
+      </GestureHandlerRootView>
+    );
+  }
+
+  // 回答者：判定画面
+  if (currentScreen === 'answererJudgment') {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar style="light" />
+        <AnswererJudgmentScreen
+          gameState={gameState}
+          onUpdateGameState={updateGameState}
+          onBelieve={() => makeJudgmentCall('believe')}
+          onDoubt={() => makeJudgmentCall('doubt')}
+          onPass={handlePass}
+          onBack={() => navigateTo('gameMain')}
+        />
+      </GestureHandlerRootView>
+    );
+  }
+
+  // カード確認画面
+  if (currentScreen === 'cardCheck') {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar style="light" />
+        <CardCheckScreen
+          gameState={gameState}
+          onNext={completeCardCheck}
+          onBack={() => navigateTo('answererJudgment')}
+        />
+      </GestureHandlerRootView>
+    );
+  }
+
+  // 渡す：相手選択画面
+  if (currentScreen === 'passOpponentSelection') {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar style="light" />
+        <PassOpponentSelectionScreen
+          gameState={gameState}
+          onUpdateGameState={updateGameState}
+          onNext={selectPassOpponent}
+          onBack={() => navigateTo('cardCheck')}
+        />
+      </GestureHandlerRootView>
+    );
+  }
+
+  // 渡す：宣言選択画面
+  if (currentScreen === 'passDeclaration' && passSelectedOpponent !== null) {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar style="light" />
+        <PassDeclarationScreen
+          gameState={gameState}
+          selectedOpponentIndex={passSelectedOpponent}
+          onUpdateGameState={updateGameState}
+          onNext={completePassDeclaration}
+          onBack={() => navigateTo('passOpponentSelection')}
+        />
+      </GestureHandlerRootView>
+    );
+  }
+
+  // 結果確認画面
+  if (currentScreen === 'result' && cardRecipientIndex !== null) {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar style="light" />
+        <ResultScreen
+          gameState={gameState}
+          cardRecipientIndex={cardRecipientIndex}
+          onNext={completeResult}
+        />
+      </GestureHandlerRootView>
+    );
+  }
+
+  // ゲームメイン画面
   return (
-    <>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <StatusBar style="light" />
-      <GameScreen gameState={gameState} onUpdateGameState={handleUpdateGameState} />
-    </>
+      <GameMainScreen
+        gameState={gameState}
+        onUpdateGameState={updateGameState}
+        onSelectOpponent={startTurn}
+        onJudgment={() => navigateTo('answererJudgment')}
+      />
+    </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.background[0],
+  },
+});

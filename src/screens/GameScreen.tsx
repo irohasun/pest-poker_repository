@@ -5,9 +5,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   Modal,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GameState, CardType, CARD_INFO } from '../types/game';
 import { PlayerStatus } from '../components/PlayerStatus';
@@ -89,7 +89,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ gameState, onUpdateGameS
 
   return (
     <LinearGradient colors={['#1E1E1E', '#121212', '#0A0A0A']} style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton}>
             <Text style={styles.headerButtonText}>◀ 戻る</Text>
@@ -213,6 +213,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
+    paddingTop: 50, // ノッチで隠れないように50pxの余白を追加
     backgroundColor: 'rgba(45, 45, 45, 0.6)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',

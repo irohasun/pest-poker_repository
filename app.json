@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Bluff Card Game",
-    "slug": "bluff-card-game",
+    "name": "PEST POKER",
+    "slug": "pest-poker",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -31,6 +31,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-asset"
+    ]
   }
 }

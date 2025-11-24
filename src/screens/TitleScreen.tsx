@@ -34,45 +34,45 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({ onStartGame, onShowRul
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
-        <View style={styles.content}>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>PESTPOKER</Text>
-          </View>
-
-          <Animated.View style={[styles.emojisContainer, { transform: [{ translateY: bounceAnim }] }]}>
-            <Text style={styles.emoji}>🦇</Text>
-            <Text style={styles.emoji}>🕷️</Text>
-            <Text style={styles.emoji}>🦂</Text>
-            <Text style={styles.emoji}>🐭</Text>
-            <Text style={styles.emoji}>🐸</Text>
-            <Text style={styles.emoji}>🪰</Text>
-            <Text style={styles.emoji}>🪲</Text>
-            <Text style={styles.emoji}>🦟</Text>
-          </Animated.View>
-
-          <View style={styles.buttonsContainer}>
-            <TouchableOpacity
-              style={styles.primaryButton}
-              onPress={onStartGame}
-              activeOpacity={0.8}
-            >
-              <LinearGradient
-                colors={['#C62828', '#D32F2F']}
-                style={styles.buttonGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <Text style={styles.primaryButtonText}>▶ ゲーム開始</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-
-            {onShowRules && (
-              <TouchableOpacity style={styles.secondaryButton} onPress={onShowRules} activeOpacity={0.8}>
-                <Text style={styles.secondaryButtonText}>ルール説明</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+      <View style={styles.content}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>PESTPOKER</Text>
         </View>
+
+        <Animated.View style={[styles.emojisContainer, { transform: [{ translateY: bounceAnim }] }]}>
+          <Text style={styles.emoji}>🦇</Text>
+          <Text style={styles.emoji}>🕷️</Text>
+          <Text style={styles.emoji}>🦂</Text>
+          <Text style={styles.emoji}>🐭</Text>
+          <Text style={styles.emoji}>🐸</Text>
+          <Text style={styles.emoji}>🪰</Text>
+          <Text style={styles.emoji}>🪲</Text>
+          <Text style={styles.emoji}>🦟</Text>
+        </Animated.View>
+
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={onStartGame}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={['#C62828', '#D32F2F']}
+              style={styles.buttonGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            >
+              <Text style={styles.primaryButtonText}>▶ ゲーム開始</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+
+          {onShowRules && (
+            <TouchableOpacity style={styles.secondaryButton} onPress={onShowRules} activeOpacity={0.8}>
+              <Text style={styles.secondaryButtonText}>ルール説明</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
       </SafeAreaView>
     </LinearGradient>
   );

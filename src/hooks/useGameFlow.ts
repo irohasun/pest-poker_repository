@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { GameState, CardType } from '../types/game';
-import { initializeGame, makeJudgment } from '../utils/gameLogic';
+import { initializeGame, makeJudgment, startTurn as startTurnLogic } from '../utils/gameLogic';
 
 export type Screen = 
   | 'title'
@@ -122,13 +122,16 @@ export const useGameFlow = () => {
     const challengeSucceeds = (judgment === 'believe') === isClaimTrue;
     const recipientIndex = challengeSucceeds ? questioner : answerer;
     
-    setCardRecipientIndex(recipientIndex);
-    
     // CardFlipScreenをスキップして、直接ゲーム状態を更新してResultScreenへ
     const newState = makeJudgment(gameState, judgment === 'believe');
     updateGameState(newState);
     
+    // 状態更新のタイミングを制御
     if (newState.phase !== 'gameOver') {
+      // 1. まずカード受取人を設定
+      setCardRecipientIndex(recipientIndex);
+      // 2. 次に画面遷移を設定（cardRecipientIndexが設定された状態でレンダリングされるようにする）
+      // Reactの状態更新はバッチ処理されることが多いが、順序を保証するためにここでの設定は重要
       setCurrentScreen('result');
     }
   }, [gameState, updateGameState]);
@@ -145,10 +148,25 @@ export const useGameFlow = () => {
   }, [gameState, lastJudgment, cardRecipientIndex, updateGameState]);
 
   const completeResult = useCallback(() => {
+    if (!gameState || cardRecipientIndex === null) return;
+    
+    // 次の出題者（cardRecipientIndex）でターンを開始
+    // makeJudgmentで既にcurrentPlayerIndexが更新されているはずだが、念のため確認
+    const nextQuestionerIndex = gameState.currentPlayerIndex;
+    const newState = startTurnLogic(gameState, nextQuestionerIndex);
+    
+    // ゲーム状態を更新
+    setGameState(newState);
+    
+    // 状態をクリア
     setLastJudgment(null);
     setCardRecipientIndex(null);
-    setCurrentScreen('gameMain');
-  }, []);
+    
+    // gameMainを経由せず、直接questionerCardSelectionに遷移
+    if (newState.phase !== 'gameOver') {
+      setCurrentScreen('questionerCardSelection');
+    }
+  }, [gameState, cardRecipientIndex]);
 
   const handlePass = useCallback(() => {
     setCurrentScreen('cardCheck');

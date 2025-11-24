@@ -46,10 +46,6 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
             colors={['rgba(255, 255, 255, 0.1)', 'rgba(255, 255, 255, 0.05)']}
             style={styles.summarySection}
           >
-            <View style={styles.summaryIconContainer}>
-              <Text style={styles.summaryIcon}>📥</Text>
-            </View>
-            <Text style={styles.summaryTitle}>RESULT</Text>
             <Text style={styles.summaryText}>
               <Text style={styles.recipientName}>{cardRecipient.name}</Text>さんが{'\n'}
               カードを引き取りました

@@ -141,13 +141,13 @@ const styles = StyleSheet.create({
   },
   highlightedBorder: {
     borderWidth: 3,
-    borderColor: '#FF1744', // 鮮やかな赤
+    borderColor: '#FF0000', // 真っ赤な赤枠に変更
   },
   highlightedShadow: {
-    shadowColor: '#FF1744',
-    shadowOpacity: 0.9,
-    shadowRadius: 10,
-    elevation: 10,
+    shadowColor: '#FF0000',
+    shadowOpacity: 1.0,
+    shadowRadius: 12,
+    elevation: 12,
   },
   cardImage: {
     width: '100%',

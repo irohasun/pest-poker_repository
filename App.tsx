@@ -50,7 +50,8 @@ export default function App() {
     const preloadAssets = async () => {
       try {
         const imageAssets = Object.values(CARD_INFO).map(info => {
-          return Asset.fromModule(info.image).downloadAsync();
+          // Asset.fromModuleはImageSourcePropTypeの厳密な型定義と一致しない場合があるため、キャストして対応
+          return Asset.fromModule(info.image as any).downloadAsync();
         });
 
         // 裏面画像のプリロードを追加
@@ -210,7 +211,23 @@ export default function App() {
   }
 
   // 結果確認画面
-  if (currentScreen === 'result' && cardRecipientIndex !== null) {
+  // cardRecipientIndexがnullでも、ResultScreen内で適切にハンドリングするか、
+  // useGameFlow側で同期をとる必要がありますが、ここでは最低限のnullチェックを行います。
+  // 注意: useGameFlowでsetCardRecipientIndexとsetCurrentScreenを同時に呼んでいるため、
+  // バッチ更新が効く場合は問題ありませんが、非同期のタイミングずれを防ぐため
+  // nullチェックは残しつつ、ブランクスクリーン回避のためにローディングなどを検討する余地があります。
+  if (currentScreen === 'result') {
+    if (cardRecipientIndex === null) {
+        // cardRecipientIndexが未設定の場合はローディングまたはnullを返す
+        // (通常は発生しないはずだが、念のため)
+        return (
+            <GestureHandlerRootView style={{ flex: 1 }}>
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={COLORS.primary} />
+                </View>
+            </GestureHandlerRootView>
+        );
+    }
     return (
       <GestureHandlerRootView style={{ flex: 1 }}>
         <StatusBar style="light" />

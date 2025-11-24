@@ -79,10 +79,10 @@ export const AnswererJudgmentScreen: React.FC<AnswererJudgmentScreenProps> = ({
     setJudgment(selectedJudgment);
     
     // カードめくりアニメーション（完了後は自動遷移せず、タップ待ち）
-    flipAnim.value = withSequence(
-        withTiming(90, { duration: 400 }),
+        flipAnim.value = withSequence(
+            withTiming(90, { duration: 400 }),
         withTiming(180, { duration: 400 })
-    );
+        );
   };
 
   const handleSwipeComplete = (direction: 'left' | 'right') => {
@@ -306,21 +306,21 @@ export const AnswererJudgmentScreen: React.FC<AnswererJudgmentScreenProps> = ({
             </TouchableOpacity>
           ) : (
             // スワイプ前：渡すボタン
-            <TouchableOpacity
-              style={[styles.judgmentButton, !canPass && styles.judgmentButtonDisabled]}
-              onPress={onPass}
-              disabled={!canPass || showResult}
-              activeOpacity={0.8}
+          <TouchableOpacity
+            style={[styles.judgmentButton, !canPass && styles.judgmentButtonDisabled]}
+            onPress={onPass}
+            disabled={!canPass || showResult}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={canPass ? COLORS.gradientOrange : COLORS.gradientGray}
+              style={styles.judgmentButtonGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
             >
-              <LinearGradient
-                colors={canPass ? COLORS.gradientOrange : COLORS.gradientGray}
-                style={styles.judgmentButtonGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <Text style={styles.judgmentButtonText}>他の人に渡す</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+              <Text style={styles.judgmentButtonText}>他の人に渡す</Text>
+            </LinearGradient>
+          </TouchableOpacity>
           )}
         </View>
     </ScreenLayout>
@@ -384,13 +384,12 @@ const styles = StyleSheet.create({
   cardFace: {
     backgroundColor: COLORS.overlay,
     borderRadius: LAYOUT.borderRadius,
-    padding: 20,
+    padding: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 167, 38, 0.4)',
     width: '100%',
     height: '100%',
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -399,20 +398,23 @@ const styles = StyleSheet.create({
   },
   cardFaceFront: {
       backgroundColor: '#2D2D2D', // 表面は少し明るく
-      borderColor: '#FFA726',
+      justifyContent: 'flex-start',
+      paddingTop: 12,
+      paddingBottom: 8,
+      paddingHorizontal: 16,
   },
   declarationImage: {
-    width: 150,
-    height: 150,
-    marginBottom: 16,
+    width: 120,
+    height: 120,
+    marginBottom: 10,
   },
   declarationText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: COLORS.text,
     textAlign: 'center',
-    lineHeight: 32,
-    marginBottom: 16,
+    lineHeight: 26,
+    marginBottom: 10,
   },
   swipeHintText: {
     fontSize: 14,
@@ -421,11 +423,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   judgmentResultBadge: {
-    marginTop: 20,
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 3,
+    marginTop: 8,
+    marginBottom: 0,
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 2,
     alignItems: 'center',
+    width: '100%',
   },
   correctBadge: {
     backgroundColor: 'rgba(76, 175, 80, 0.2)',
@@ -436,14 +440,15 @@ const styles = StyleSheet.create({
     borderColor: '#F44336',
   },
   judgmentResultText: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: COLORS.text,
-    marginBottom: 8,
+    marginBottom: 2,
   },
   judgmentDetailText: {
-    fontSize: 16,
+    fontSize: 14,
     color: COLORS.textDim,
+    marginBottom: 0,
   },
   situationSection: {
     marginBottom: 16,

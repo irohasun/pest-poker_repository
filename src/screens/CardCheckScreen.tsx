@@ -5,10 +5,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  ScrollView,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GameState, CARD_INFO } from '../types/game';
+import { ScreenLayout } from '../components/ScreenLayout';
+import { COLORS, LAYOUT } from '../constants/theme';
 
 interface CardCheckScreenProps {
   gameState: GameState;
@@ -32,48 +34,52 @@ export const CardCheckScreen: React.FC<CardCheckScreenProps> = ({
   const declaredCard = CARD_INFO[gameState.currentTurn.declaredAs];
   const isTruth = gameState.currentTurn.card === gameState.currentTurn.declaredAs;
 
-  useEffect(() => {
-    // 警告表示後、2秒待機してからカードを表示
-    if (showWarning) {
-      const timer = setTimeout(() => {
-        setShowWarning(false);
-        setShowCard(true);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [showWarning]);
+  const handleWarningTap = () => {
+    setShowWarning(false);
+    setShowCard(true);
+  };
 
   if (showWarning) {
     return (
-      <LinearGradient colors={['#1E1E1E', '#121212', '#0A0A0A']} style={styles.container}>
-        <SafeAreaView style={styles.safeArea}>
-          <View style={styles.warningContainer}>
-            <Text style={styles.warningTitle}>⚠️ 重要な注意</Text>
-            <Text style={styles.warningText}>
-              これから実際のカードを{'\n'}
-              確認します{'\n'}
-              {'\n'}
-              他のプレイヤーには{'\n'}
-              見えないように{'\n'}
-              注意してください
-            </Text>
-            <Text style={styles.warningSubtext}>
-              🤫 ポーカーフェイスを保ちましょう
-            </Text>
-          </View>
-        </SafeAreaView>
-      </LinearGradient>
+      <ScreenLayout hideHeader>
+        <TouchableOpacity 
+          style={styles.warningContainer} 
+          onPress={handleWarningTap}
+          activeOpacity={0.9}
+        >
+          <Text style={styles.warningTitle}>⚠️</Text>
+          <Text style={styles.warningText}>
+            これから実際のカードを{'\n'}
+            確認します{'\n'}
+            {'\n'}
+            他のプレイヤーには{'\n'}
+            見えないように{'\n'}
+            注意してください
+          </Text>
+          <Text style={styles.tapToRevealText}>
+            タップしてカードを確認
+          </Text>
+        </TouchableOpacity>
+      </ScreenLayout>
     );
   }
 
   return (
-    <LinearGradient colors={['#1E1E1E', '#121212', '#0A0A0A']} style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>⚠️ 他の人は見ないで！</Text>
-        </View>
-
-        <View style={styles.content}>
+    <ScreenLayout
+      title="⚠️ 他の人は見ないで！"
+      onBack={onBack}
+      style={{ paddingBottom: 0 }}
+    >
+      <TouchableOpacity 
+        style={styles.content} 
+        onPress={onNext}
+        activeOpacity={0.9}
+      >
+        <ScrollView 
+          style={styles.scrollView} 
+          contentContainerStyle={styles.contentContainer}
+          scrollEnabled={false}
+        >
           <Text style={styles.cardLabel}>実際のカードは...</Text>
 
           <View style={styles.cardContainer}>
@@ -92,36 +98,16 @@ export const CardCheckScreen: React.FC<CardCheckScreenProps> = ({
             これから次の人に{'\n'}
             何を宣言するか決めます
           </Text>
-        </View>
-
-        <View style={styles.bottomBar}>
-          <TouchableOpacity
-            style={styles.nextButton}
-            onPress={onNext}
-            activeOpacity={0.8}
-          >
-            <LinearGradient
-              colors={['#C62828', '#D32F2F']}
-              style={styles.nextButtonGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-            >
-              <Text style={styles.nextButtonText}>次へ</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    </LinearGradient>
+          <Text style={styles.tapToRevealText}>
+            タップして次へ
+          </Text>
+        </ScrollView>
+      </TouchableOpacity>
+    </ScreenLayout>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
   warningContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -131,56 +117,55 @@ const styles = StyleSheet.create({
   warningTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#FFA726',
+    color: COLORS.secondary,
     marginBottom: 24,
     textAlign: 'center',
   },
   warningText: {
     fontSize: 18,
-    color: '#FFFFFF',
+    color: COLORS.text,
     textAlign: 'center',
     lineHeight: 28,
     marginBottom: 16,
   },
   warningSubtext: {
     fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.75)',
+    color: COLORS.textDim,
     textAlign: 'center',
     marginTop: 24,
   },
-  header: {
-    padding: 16,
-    paddingTop: 0, // SafeAreaView が適用されるため、上部パディングは削除
-    backgroundColor: 'rgba(45, 45, 45, 0.6)',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFA726',
+  tapToRevealText: {
+    fontSize: 18,
+    color: COLORS.secondary,
     textAlign: 'center',
+    marginTop: 32,
+    fontWeight: 'bold',
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  contentContainer: {
+    padding: LAYOUT.spacing,
     alignItems: 'center',
-    padding: 32,
+    justifyContent: 'center',
+    minHeight: '100%',
   },
   cardLabel: {
     fontSize: 18,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: COLORS.text,
     marginBottom: 24,
     textAlign: 'center',
   },
   cardContainer: {
-    backgroundColor: 'rgba(45, 45, 45, 0.6)',
-    borderRadius: 16,
+    backgroundColor: COLORS.overlay,
+    borderRadius: LAYOUT.borderRadius,
     padding: 32,
     alignItems: 'center',
     marginBottom: 32,
-    borderWidth: 2,
-    borderColor: '#FFA726',
+    borderWidth: 0,
   },
   cardImage: {
     width: 200,
@@ -190,7 +175,7 @@ const styles = StyleSheet.create({
   cardName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: COLORS.text,
   },
   comparisonSection: {
     marginBottom: 32,
@@ -198,7 +183,7 @@ const styles = StyleSheet.create({
   },
   comparisonLabel: {
     fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: COLORS.text,
     marginBottom: 8,
   },
   comparisonResult: {
@@ -213,30 +198,9 @@ const styles = StyleSheet.create({
   },
   nextStepText: {
     fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.75)',
+    color: COLORS.textDim,
     textAlign: 'center',
     lineHeight: 24,
-  },
-  bottomBar: {
-    padding: 16,
-    backgroundColor: 'rgba(45, 45, 45, 0.9)',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  nextButton: {
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  nextButtonGradient: {
-    paddingVertical: 16,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  nextButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
   },
 });
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
 import { SafeAreaView, Edges } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, LAYOUT } from '../constants/theme';
+import { SettingsMenu } from './SettingsMenu';
 
 interface ScreenLayoutProps {
   children: React.ReactNode;
@@ -19,6 +20,10 @@ interface ScreenLayoutProps {
   style?: StyleProp<ViewStyle>;
   edges?: Edges;
   hideHeader?: boolean;
+  onPause?: () => void; // 一時停止コールバック
+  onReturnToTitle?: () => void; // タイトルに戻るコールバック
+  onEndGame?: () => void; // ゲーム終了コールバック
+  showSettings?: boolean; // 設定アイコンを表示するかどうか（デフォルト: true）
 }
 
 export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
@@ -29,36 +34,72 @@ export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
   style,
   edges = ['left', 'right', 'bottom'],
   hideHeader = false,
+  onPause,
+  onReturnToTitle,
+  onEndGame,
+  showSettings = true, // デフォルトで設定アイコンを表示
 }) => {
-  return (
-    <LinearGradient colors={COLORS.background} style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={edges}>
-        {!hideHeader && (
-          <View style={styles.header}>
-            <View style={styles.leftContainer}>
-              {onBack ? (
-                <TouchableOpacity onPress={onBack} style={styles.backButton}>
-                  <Text style={styles.headerButtonText}>◀ 戻る</Text>
-                </TouchableOpacity>
-              ) : (
-                <View style={styles.placeholder} />
-              )}
-            </View>
-            
-            <View style={styles.titleContainer}>
-              {title && <Text style={styles.headerTitle}>{title}</Text>}
-            </View>
+  const [settingsVisible, setSettingsVisible] = useState(false);
 
-            <View style={styles.rightContainer}>
-              {headerRight || <View style={styles.placeholder} />}
+  const handleSettingsPress = () => {
+    setSettingsVisible(true);
+  };
+
+  const handleCloseSettings = () => {
+    setSettingsVisible(false);
+  };
+
+  return (
+    <>
+      <LinearGradient colors={COLORS.background} style={styles.container}>
+        <SafeAreaView style={styles.safeArea} edges={edges}>
+          {!hideHeader && (
+            <View style={styles.header}>
+              <View style={styles.leftContainer}>
+                {onBack ? (
+                  <TouchableOpacity onPress={onBack} style={styles.backButton}>
+                    <Text style={styles.headerButtonText}>◀ 戻る</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <View style={styles.placeholder} />
+                )}
+              </View>
+              
+              <View style={styles.titleContainer}>
+                {title && <Text style={styles.headerTitle}>{title}</Text>}
+              </View>
+
+              <View style={styles.rightContainer}>
+                {showSettings && (
+                  <TouchableOpacity
+                    onPress={handleSettingsPress}
+                    style={styles.settingsButton}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.settingsIcon}>⚙️</Text>
+                  </TouchableOpacity>
+                )}
+                {headerRight || (!showSettings && <View style={styles.placeholder} />)}
+              </View>
             </View>
+          )}
+          <View style={[styles.content, style]}>
+            {children}
           </View>
-        )}
-        <View style={[styles.content, style]}>
-          {children}
-        </View>
-      </SafeAreaView>
-    </LinearGradient>
+        </SafeAreaView>
+      </LinearGradient>
+
+      {/* 設定メニュー */}
+      {showSettings && (
+        <SettingsMenu
+          visible={settingsVisible}
+          onClose={handleCloseSettings}
+          onPause={onPause}
+          onReturnToTitle={onReturnToTitle}
+          onEndGame={onEndGame}
+        />
+      )}
+    </>
   );
 };
 
@@ -108,6 +149,14 @@ const styles = StyleSheet.create({
   },
   placeholder: {
     width: 40,
+  },
+  settingsButton: {
+    padding: 8,
+    marginRight: -8, // 視覚的に右端に揃える
+  },
+  settingsIcon: {
+    fontSize: 24,
+    color: COLORS.text,
   },
   content: {
     flex: 1,

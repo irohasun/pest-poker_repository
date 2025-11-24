@@ -14,6 +14,7 @@ import { AnswererJudgmentScreen } from './src/screens/AnswererJudgmentScreen';
 import { CardCheckScreen } from './src/screens/CardCheckScreen';
 import { PassOpponentSelectionScreen } from './src/screens/PassOpponentSelectionScreen';
 import { PassDeclarationScreen } from './src/screens/PassDeclarationScreen';
+import { PassCardSelectionScreen } from './src/screens/PassCardSelectionScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
 import { useGameFlow } from './src/hooks/useGameFlow';
 import { COLORS } from './src/constants/theme';
@@ -26,6 +27,7 @@ export default function App() {
     passSelectedOpponent,
     lastJudgment,
     cardRecipientIndex,
+    receivedCardType,
     startGame,
     completePlayerSetup,
     handleInitialHandNext,
@@ -38,6 +40,7 @@ export default function App() {
     completeResult,
     handlePass,
     completeCardCheck,
+    completePassCardSelection,
     selectPassOpponent,
     completePassDeclaration,
     navigateTo,
@@ -92,6 +95,22 @@ export default function App() {
 
   if (!gameState) return null;
 
+  // 一時停止処理（今後実装予定）
+  const handlePause = () => {
+    // TODO: 一時停止機能を実装
+    console.log('一時停止');
+  };
+
+  // タイトルに戻る処理
+  const handleReturnToTitle = () => {
+    navigateTo('title');
+  };
+
+  // ゲーム終了処理（タイトル画面に戻る）
+  const handleEndGame = () => {
+    navigateTo('title');
+  };
+
   // プレイヤー登録画面
   if (currentScreen === 'setup') {
     return (
@@ -115,6 +134,9 @@ export default function App() {
           currentPlayerIndex={initialHandPlayerIndex}
           onComplete={completeInitialHand}
           onNextPlayer={handleInitialHandNext}
+          onPause={handlePause}
+          onReturnToTitle={handleReturnToTitle}
+          onEndGame={handleEndGame}
         />
       </GestureHandlerRootView>
     );
@@ -128,6 +150,9 @@ export default function App() {
         <QuestionerSelectionScreen
           gameState={gameState}
           onSelectQuestioner={selectQuestioner}
+          onPause={handlePause}
+          onReturnToTitle={handleReturnToTitle}
+          onEndGame={handleEndGame}
         />
       </GestureHandlerRootView>
     );
@@ -143,6 +168,9 @@ export default function App() {
           onUpdateGameState={updateGameState}
           onNext={completeQuestionerCardSelection}
           onBack={() => navigateTo('gameMain')}
+          onPause={handlePause}
+          onReturnToTitle={handleReturnToTitle}
+          onEndGame={handleEndGame}
         />
       </GestureHandlerRootView>
     );
@@ -160,6 +188,9 @@ export default function App() {
           onDoubt={() => makeJudgmentCall('doubt')}
           onPass={handlePass}
           onBack={() => navigateTo('gameMain')}
+          onPause={handlePause}
+          onReturnToTitle={handleReturnToTitle}
+          onEndGame={handleEndGame}
         />
       </GestureHandlerRootView>
     );
@@ -179,7 +210,22 @@ export default function App() {
     );
   }
 
-  // 渡す：相手選択画面
+  // 渡す：統合選択画面（最新実装）
+  if (currentScreen === 'passCardSelection') {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar style="light" />
+        <PassCardSelectionScreen
+          gameState={gameState}
+          onUpdateGameState={updateGameState}
+          onNext={completePassCardSelection}
+          onBack={() => navigateTo('cardCheck')}
+        />
+      </GestureHandlerRootView>
+    );
+  }
+
+  // 渡す：相手選択画面（古い実装、後方互換性のため残す）
   if (currentScreen === 'passOpponentSelection') {
     return (
       <GestureHandlerRootView style={{ flex: 1 }}>
@@ -194,7 +240,7 @@ export default function App() {
     );
   }
 
-  // 渡す：宣言選択画面
+  // 渡す：宣言選択画面（古い実装、後方互換性のため残す）
   if (currentScreen === 'passDeclaration' && passSelectedOpponent !== null) {
     return (
       <GestureHandlerRootView style={{ flex: 1 }}>
@@ -234,6 +280,7 @@ export default function App() {
         <ResultScreen
           gameState={gameState}
           cardRecipientIndex={cardRecipientIndex}
+          receivedCardType={receivedCardType}
           onNext={completeResult}
         />
       </GestureHandlerRootView>
@@ -249,6 +296,9 @@ export default function App() {
         onUpdateGameState={updateGameState}
         onSelectOpponent={startTurn}
         onJudgment={() => navigateTo('answererJudgment')}
+        onPause={handlePause}
+        onReturnToTitle={handleReturnToTitle}
+        onEndGame={handleEndGame}
       />
     </GestureHandlerRootView>
   );

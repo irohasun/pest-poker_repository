@@ -15,12 +15,14 @@ import { checkPlayerElimination } from '../utils/gameLogic';
 interface ResultScreenProps {
   gameState: GameState;
   cardRecipientIndex: number;
+  receivedCardType: CardType | null; // 引き取られたカードの種類
   onNext: () => void;
 }
 
 export const ResultScreen: React.FC<ResultScreenProps> = ({
   gameState,
   cardRecipientIndex,
+  receivedCardType,
   onNext,
 }) => {
   const cardRecipient = gameState.players[cardRecipientIndex];
@@ -55,22 +57,11 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
           <View style={styles.situationSection}>
             <Text style={styles.sectionTitle}>現在の状況</Text>
             {gameState.players.map((player, index) => {
-              // カードを引き取ったプレイヤーの場合、最後に引き取ったカードの種類を特定
+              // カードを引き取ったプレイヤーの場合、引き取られたカードの種類を赤枠で強調表示
               let highlightCardType: CardType | undefined;
-              if (index === cardRecipientIndex && gameState.currentTurn) {
-                // 宣言されたカードではなく、実際に渡されたカードの種類（declaredAs）を使用
-                // 注: ゲームロジック上、引き取るのは実際に渡されたカード(actualCard)だが、
-                // ここではGameStateの更新後のため、プレイヤーの手札増減ロジックに依存する。
-                // 簡易的に、直前のターンで宣言されたカードタイプを使用する（通常、場に出ているカードと同じタイプとして扱われるため）
-                // ただし、正確には「引き取ったカード」を特定する必要がある。
-                // result画面遷移前にgameStateが更新されている前提。
-                // 宣言と一致した場合はそのカード、不一致（ダウト成功）の場合はそのカード、など状況によるが、
-                // 基本的には「渡されたカード」が手札に追加されているはず。
-                
-                // ここではシンプルに、Result画面に遷移する前のターン情報から、
-                // 「宣言されたカード」または「実際のカード」のどちらか（引き取った対象）を指定したいが、
-                // 既存のI/FではdeclaredAsが利用可能。
-                highlightCardType = gameState.currentTurn.declaredAs || undefined;
+              if (index === cardRecipientIndex && receivedCardType) {
+                // 引き取られたカードの種類を設定（useGameFlowで保持された値を使用）
+                highlightCardType = receivedCardType;
               }
 
               return (

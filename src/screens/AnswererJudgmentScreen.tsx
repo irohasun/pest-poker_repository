@@ -40,6 +40,9 @@ interface AnswererJudgmentScreenProps {
   onDoubt: () => void;
   onPass: () => void;
   onBack: () => void;
+  onPause?: () => void;
+  onReturnToTitle?: () => void;
+  onEndGame?: () => void;
 }
 
 export const AnswererJudgmentScreen: React.FC<AnswererJudgmentScreenProps> = ({
@@ -48,6 +51,9 @@ export const AnswererJudgmentScreen: React.FC<AnswererJudgmentScreenProps> = ({
   onDoubt,
   onPass,
   onBack,
+  onPause,
+  onReturnToTitle,
+  onEndGame,
 }) => {
   const [showResult, setShowResult] = useState(false);
   const [judgment, setJudgment] = useState<'believe' | 'doubt' | null>(null);
@@ -212,6 +218,9 @@ export const AnswererJudgmentScreen: React.FC<AnswererJudgmentScreenProps> = ({
       title={`${answerer.name}さんの番です`}
       onBack={onBack}
       style={{ paddingBottom: 0 }}
+      onPause={onPause}
+      onReturnToTitle={onReturnToTitle}
+      onEndGame={onEndGame}
     >
         <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer} scrollEnabled={!showResult}>
           <View style={styles.swipeContainer}>
@@ -230,7 +239,6 @@ export const AnswererJudgmentScreen: React.FC<AnswererJudgmentScreenProps> = ({
                   <Animated.View style={[styles.cardFace, animatedFlipBackStyle]}>
                     <Image source={BACKSIDE_IMAGE} style={styles.declarationImage} resizeMode="contain" />
                     <Text style={styles.declarationText}>
-                        {questioner.name}さん{'\n'}
                         「これは{declaredCard.name}です」
                     </Text>
                     <Text style={styles.swipeHintText}>
@@ -266,7 +274,7 @@ export const AnswererJudgmentScreen: React.FC<AnswererJudgmentScreenProps> = ({
           </View>
 
           <View style={styles.situationSection}>
-            <Text style={styles.sectionTitle}>📊 場の状況</Text>
+            <Text style={styles.sectionTitle}>場の状況</Text>
             {gameState.players.map((player, index) => {
               let role = undefined;
               if (index === gameState.currentTurn?.questioner) {
@@ -399,8 +407,8 @@ const styles = StyleSheet.create({
   cardFaceFront: {
       backgroundColor: '#2D2D2D', // 表面は少し明るく
       justifyContent: 'flex-start',
-      paddingTop: 12,
-      paddingBottom: 8,
+      paddingTop: 30, // 上部のpaddingを増やして、生物の画像と正解BOXを全体的に下に下げる
+      paddingBottom: 0, // 下部のpaddingを0に設定（不正解BOXの下の余白を削減）
       paddingHorizontal: 16,
   },
   declarationImage: {
@@ -433,7 +441,7 @@ const styles = StyleSheet.create({
   },
   correctBadge: {
     backgroundColor: 'rgba(76, 175, 80, 0.2)',
-    borderColor: '#4CAF50',
+    borderWidth: 0,
   },
   incorrectBadge: {
     backgroundColor: 'rgba(244, 67, 54, 0.2)',

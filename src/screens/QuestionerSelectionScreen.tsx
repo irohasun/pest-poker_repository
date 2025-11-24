@@ -16,11 +16,17 @@ import { COLORS } from '../constants/theme';
 interface QuestionerSelectionScreenProps {
   gameState: GameState;
   onSelectQuestioner: (playerIndex: number) => void;
+  onPause?: () => void;
+  onReturnToTitle?: () => void;
+  onEndGame?: () => void;
 }
 
 export const QuestionerSelectionScreen: React.FC<QuestionerSelectionScreenProps> = ({
   gameState,
   onSelectQuestioner,
+  onPause,
+  onReturnToTitle,
+  onEndGame,
 }) => {
   const [selectedPlayerIndex, setSelectedPlayerIndex] = useState<number | null>(null);
   const [showWarning, setShowWarning] = useState(false);
@@ -40,13 +46,16 @@ export const QuestionerSelectionScreen: React.FC<QuestionerSelectionScreenProps>
   if (showWarning && selectedPlayerIndex !== null) {
     const selectedPlayer = gameState.players[selectedPlayerIndex];
     return (
-      <ScreenLayout hideHeader>
+      <ScreenLayout hideHeader onPause={onPause} onReturnToTitle={onReturnToTitle} onEndGame={onEndGame}>
         <TouchableOpacity 
           style={styles.warningContainer} 
           onPress={handleStartGame} 
           activeOpacity={0.9}
         >
-          <Text style={styles.warningTitle}>{selectedPlayer.name}さんに渡してください</Text>
+          <Text style={styles.warningTitle}>
+            {selectedPlayer.name}さん{'\n'}
+            に渡してください
+          </Text>
           <Text style={styles.warningText}>
             これからゲームを開始します{'\n'}
             {selectedPlayer.name}さんは{'\n'}

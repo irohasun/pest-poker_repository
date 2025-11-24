@@ -16,6 +16,9 @@ interface InitialHandScreenProps {
   currentPlayerIndex: number;
   onComplete: () => void;
   onNextPlayer: (selectedCard: CardType) => void;
+  onPause?: () => void;
+  onReturnToTitle?: () => void;
+  onEndGame?: () => void;
 }
 
 export const InitialHandScreen: React.FC<InitialHandScreenProps> = ({
@@ -23,6 +26,9 @@ export const InitialHandScreen: React.FC<InitialHandScreenProps> = ({
   currentPlayerIndex,
   onComplete,
   onNextPlayer,
+  onPause,
+  onReturnToTitle,
+  onEndGame,
 }) => {
   const [showWarning, setShowWarning] = useState(true);
   const [showHand, setShowHand] = useState(false);
@@ -72,22 +78,24 @@ export const InitialHandScreen: React.FC<InitialHandScreenProps> = ({
 
   // プレイヤーが存在しない場合（画面遷移中など）は、白飛びを防ぐために背景のみを表示
   if (!currentPlayer) {
-    return <ScreenLayout hideHeader><View /></ScreenLayout>;
+    return <ScreenLayout hideHeader onPause={onPause} onReturnToTitle={onReturnToTitle} onEndGame={onEndGame}><View /></ScreenLayout>;
   }
 
   if (showWarning) {
     return (
-      <ScreenLayout hideHeader>
+      <ScreenLayout hideHeader onPause={onPause} onReturnToTitle={onReturnToTitle} onEndGame={onEndGame}>
         <TouchableOpacity 
           style={styles.warningContainer} 
           onPress={handleTapToReveal} 
           activeOpacity={0.9}
         >
-          <Text style={styles.warningTitle}>{currentPlayer.name}さんに渡してください</Text>
+          <Text style={styles.warningTitle}>
+            {currentPlayer.name}さん{'\n'}
+            に渡してください
+          </Text>
           <Text style={styles.warningText}>
-            これから手札を確認します{'\n'}
-            他のプレイヤーには見えないように{'\n'}
-            注意してください
+            手札を確認します{'\n'}
+            他のプレイヤーに見せないように
           </Text>
           <Text style={styles.tapToRevealText}>
             タップして手札を確認
@@ -101,6 +109,9 @@ export const InitialHandScreen: React.FC<InitialHandScreenProps> = ({
     <ScreenLayout 
       title={`${currentPlayer.name}さんの手札 (${currentPlayer.handCount}枚)`}
       style={{ paddingBottom: 0 }} // Override to allow bottom bar
+      onPause={onPause}
+      onReturnToTitle={onReturnToTitle}
+      onEndGame={onEndGame}
     >
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
         <Text style={styles.warningText}>⚠️ 他の人は見ないで！</Text>

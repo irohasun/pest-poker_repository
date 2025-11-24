@@ -17,12 +17,19 @@ export const CardStack: React.FC<CardStackProps> = ({
 }) => {
   const cardInfo = CARD_INFO[cardType];
 
-  const borderStyle = isHighlighted
+  // 重なった下のカード用のボーダースタイル（isHighlightedは適用しない）
+  const stackedCardBorderStyle = isDanger
+    ? styles.dangerBorder
+    : styles.normalBorder;
+
+  // 一番上のカード用のボーダースタイル（isHighlightedを適用）
+  const mainCardBorderStyle = isHighlighted
     ? styles.highlightedBorder
     : isDanger
       ? styles.dangerBorder
       : styles.normalBorder;
 
+  // 一番上のカード用のシャドウスタイル
   const shadowStyle = isHighlighted
     ? styles.highlightedShadow
     : isDanger
@@ -36,7 +43,7 @@ export const CardStack: React.FC<CardStackProps> = ({
           <View style={[
             styles.card,
             styles.stackedCard3,
-            borderStyle
+            stackedCardBorderStyle
           ]}>
             <Image source={cardInfo.image} style={styles.cardImage} resizeMode="contain" />
           </View>
@@ -45,7 +52,7 @@ export const CardStack: React.FC<CardStackProps> = ({
           <View style={[
             styles.card,
             styles.stackedCard2,
-            borderStyle
+            stackedCardBorderStyle
           ]}>
             <Image source={cardInfo.image} style={styles.cardImage} resizeMode="contain" />
           </View>
@@ -54,7 +61,7 @@ export const CardStack: React.FC<CardStackProps> = ({
           <View style={[
             styles.card,
             styles.stackedCard1,
-            borderStyle
+            stackedCardBorderStyle
           ]}>
             <Image source={cardInfo.image} style={styles.cardImage} resizeMode="contain" />
           </View>
@@ -63,7 +70,7 @@ export const CardStack: React.FC<CardStackProps> = ({
         <View style={[
           styles.card,
           styles.mainCard,
-          borderStyle,
+          mainCardBorderStyle,
           shadowStyle
         ]}>
           <Image source={cardInfo.image} style={styles.cardImage} resizeMode="contain" />

@@ -11,6 +11,7 @@ export type Screen =
   | 'questionerCardSelection'
   | 'answererJudgment'
   | 'cardCheck'
+  | 'passCardSelection'
   | 'passOpponentSelection'
   | 'passDeclaration'
   | 'result'
@@ -23,6 +24,7 @@ export const useGameFlow = () => {
   const [passSelectedOpponent, setPassSelectedOpponent] = useState<number | null>(null);
   const [lastJudgment, setLastJudgment] = useState<'believe' | 'doubt' | null>(null);
   const [cardRecipientIndex, setCardRecipientIndex] = useState<number | null>(null);
+  const [receivedCardType, setReceivedCardType] = useState<CardType | null>(null); // 引き取られたカードの種類を保持
 
   const startGame = useCallback(() => {
     setCurrentScreen('setup');
@@ -122,6 +124,9 @@ export const useGameFlow = () => {
     const challengeSucceeds = (judgment === 'believe') === isClaimTrue;
     const recipientIndex = challengeSucceeds ? questioner : answerer;
     
+    // 引き取られたカードの種類を保存（makeJudgment後はcurrentTurnがnullになるため）
+    setReceivedCardType(card);
+    
     // CardFlipScreenをスキップして、直接ゲーム状態を更新してResultScreenへ
     const newState = makeJudgment(gameState, judgment === 'believe');
     updateGameState(newState);
@@ -161,6 +166,7 @@ export const useGameFlow = () => {
     // 状態をクリア
     setLastJudgment(null);
     setCardRecipientIndex(null);
+    setReceivedCardType(null); // 引き取られたカードの種類もクリア
     
     // gameMainを経由せず、直接questionerCardSelectionに遷移
     if (newState.phase !== 'gameOver') {
@@ -173,14 +179,22 @@ export const useGameFlow = () => {
   }, []);
 
   const completeCardCheck = useCallback(() => {
-    setCurrentScreen('passOpponentSelection');
+    // カード確認後、統合された「他の人に渡す」選択画面へ遷移
+    setCurrentScreen('passCardSelection');
   }, []);
 
+  const completePassCardSelection = useCallback(() => {
+    // 統合画面で相手選択と宣言選択が完了したら、判定画面へ遷移
+    setCurrentScreen('answererJudgment');
+  }, []);
+
+  // 後方互換性のため残す（古い実装用）
   const selectPassOpponent = useCallback((opponentIndex: number) => {
     setPassSelectedOpponent(opponentIndex);
     setCurrentScreen('passDeclaration');
   }, []);
 
+  // 後方互換性のため残す（古い実装用）
   const completePassDeclaration = useCallback(() => {
     setCurrentScreen('answererJudgment');
   }, []);
@@ -196,6 +210,7 @@ export const useGameFlow = () => {
     passSelectedOpponent,
     lastJudgment,
     cardRecipientIndex,
+    receivedCardType, // 引き取られたカードの種類を返す
     startGame,
     completePlayerSetup,
     handleInitialHandNext,
@@ -209,8 +224,9 @@ export const useGameFlow = () => {
     completeResult,
     handlePass,
     completeCardCheck,
-    selectPassOpponent,
-    completePassDeclaration,
+    completePassCardSelection,
+    selectPassOpponent, // 後方互換性のため残す（古い実装用）
+    completePassDeclaration, // 後方互換性のため残す（古い実装用）
     navigateTo,
   };
 };

@@ -18,6 +18,9 @@ interface GameMainScreenProps {
   onUpdateGameState: (newState: GameState) => void;
   onSelectOpponent: () => void;
   onJudgment: () => void;
+  onPause?: () => void;
+  onReturnToTitle?: () => void;
+  onEndGame?: () => void;
 }
 
 export const GameMainScreen: React.FC<GameMainScreenProps> = ({
@@ -25,6 +28,9 @@ export const GameMainScreen: React.FC<GameMainScreenProps> = ({
   onUpdateGameState,
   onSelectOpponent,
   onJudgment,
+  onPause,
+  onReturnToTitle,
+  onEndGame,
 }) => {
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
   if (!currentPlayer) {
@@ -78,6 +84,9 @@ export const GameMainScreen: React.FC<GameMainScreenProps> = ({
       }
       style={{ paddingBottom: 0 }}
       onBack={undefined} // No back button on main screen usually
+      onPause={onPause}
+      onReturnToTitle={onReturnToTitle}
+      onEndGame={onEndGame}
     >
         <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
           <Text style={styles.sectionTitle}>📊 現在の状況</Text>

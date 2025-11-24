@@ -28,6 +28,9 @@ interface QuestionerCardSelectionScreenProps {
   onUpdateGameState: (newState: GameState) => void;
   onNext: () => void;
   onBack: () => void;
+  onPause?: () => void;
+  onReturnToTitle?: () => void;
+  onEndGame?: () => void;
 }
 
 type SelectionStep = 'opponent' | 'card' | 'declaration' | null;
@@ -37,6 +40,9 @@ export const QuestionerCardSelectionScreen: React.FC<QuestionerCardSelectionScre
   onUpdateGameState,
   onNext,
   onBack,
+  onPause,
+  onReturnToTitle,
+  onEndGame,
 }) => {
   const [activeStep, setActiveStep] = useState<SelectionStep>('opponent');
   const [selectedOpponentIndex, setSelectedOpponentIndex] = useState<number | null>(null);
@@ -128,7 +134,6 @@ export const QuestionerCardSelectionScreen: React.FC<QuestionerCardSelectionScre
               activeOpacity={0.8}
             >
               <PlayerStatus player={player} isCurrentPlayer={isSelected} />
-              {isSelected && <View style={styles.checkMark}><Text style={styles.checkMarkText}>✓</Text></View>}
             </TouchableOpacity>
           );
         })}
@@ -155,7 +160,6 @@ export const QuestionerCardSelectionScreen: React.FC<QuestionerCardSelectionScre
             <View style={styles.cardGroupHeader}>
               <Text style={styles.cardTypeName}>{cardInfo.name}</Text>
               <Text style={styles.cardCount}>×{count}</Text>
-              {isSelected && <View style={styles.checkMark}><Text style={styles.checkMarkText}>✓</Text></View>}
             </View>
             <View style={styles.cardRow}>
               {Array.from({ length: count }).map((_, index) => {
@@ -189,7 +193,6 @@ export const QuestionerCardSelectionScreen: React.FC<QuestionerCardSelectionScre
             >
               <Image source={cardInfo.image} style={styles.declarationImage} resizeMode="contain" />
               <Text style={styles.cardName}>{cardInfo.name}</Text>
-              {isSelected && <View style={styles.checkMarkSmall}><Text style={styles.checkMarkTextSmall}>✓</Text></View>}
             </TouchableOpacity>
           );
         })}
@@ -252,40 +255,49 @@ export const QuestionerCardSelectionScreen: React.FC<QuestionerCardSelectionScre
       title="出題の設定"
       onBack={undefined} // Removed as per previous request
       style={{ paddingBottom: 0 }}
+      onPause={onPause}
+      onReturnToTitle={onReturnToTitle}
+      onEndGame={onEndGame}
     >
-        <View style={styles.accordionContainer}>
-          {/* Step 1: Opponent Selection */}
-          <TouchableOpacity
-            style={[styles.stepHeader, activeStep === 'opponent' && styles.stepHeaderActive]}
-            onPress={() => toggleStep('opponent')}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.stepTitle}>1. 誰に渡しますか？</Text>
-          </TouchableOpacity>
-          {activeStep === 'opponent' ? renderOpponentSelection() : renderSelectedOpponentPreview()}
+        <ScrollView 
+          style={styles.mainScrollView}
+          contentContainerStyle={styles.mainScrollContent}
+          nestedScrollEnabled={true}
+        >
+          <View style={styles.accordionContainer}>
+            {/* Step 1: Opponent Selection */}
+            <TouchableOpacity
+              style={[styles.stepHeader, activeStep === 'opponent' && styles.stepHeaderActive]}
+              onPress={() => toggleStep('opponent')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.stepTitle}>1. 誰に渡しますか？</Text>
+            </TouchableOpacity>
+            {activeStep === 'opponent' ? renderOpponentSelection() : renderSelectedOpponentPreview()}
 
-          {/* Step 2: Card Selection */}
-          <TouchableOpacity
-            style={[styles.stepHeader, activeStep === 'card' && styles.stepHeaderActive]}
-            onPress={() => toggleStep('card')}
-            activeOpacity={0.8}
-            disabled={!isStepComplete('opponent') && activeStep !== 'card'}
-          >
-            <Text style={[styles.stepTitle, !isStepComplete('opponent') && styles.stepTitleDisabled]}>2. どのカードを渡しますか？</Text>
-          </TouchableOpacity>
-          {activeStep === 'card' ? renderCardSelection() : renderSelectedCardPreview()}
+            {/* Step 2: Card Selection */}
+            <TouchableOpacity
+              style={[styles.stepHeader, activeStep === 'card' && styles.stepHeaderActive]}
+              onPress={() => toggleStep('card')}
+              activeOpacity={0.8}
+              disabled={!isStepComplete('opponent') && activeStep !== 'card'}
+            >
+              <Text style={[styles.stepTitle, !isStepComplete('opponent') && styles.stepTitleDisabled]}>2. どのカードを渡しますか？</Text>
+            </TouchableOpacity>
+            {activeStep === 'card' ? renderCardSelection() : renderSelectedCardPreview()}
 
-          {/* Step 3: Declaration Selection */}
-          <TouchableOpacity
-            style={[styles.stepHeader, activeStep === 'declaration' && styles.stepHeaderActive]}
-            onPress={() => toggleStep('declaration')}
-            activeOpacity={0.8}
-            disabled={!isStepComplete('card') && activeStep !== 'declaration'}
-          >
-            <Text style={[styles.stepTitle, !isStepComplete('card') && styles.stepTitleDisabled]}>3. 何だと宣言しますか？</Text>
-          </TouchableOpacity>
-          {activeStep === 'declaration' ? renderDeclarationSelection() : renderSelectedDeclarationPreview()}
-        </View>
+            {/* Step 3: Declaration Selection */}
+            <TouchableOpacity
+              style={[styles.stepHeader, activeStep === 'declaration' && styles.stepHeaderActive]}
+              onPress={() => toggleStep('declaration')}
+              activeOpacity={0.8}
+              disabled={!isStepComplete('card') && activeStep !== 'declaration'}
+            >
+              <Text style={[styles.stepTitle, !isStepComplete('card') && styles.stepTitleDisabled]}>3. 何だと宣言しますか？</Text>
+            </TouchableOpacity>
+            {activeStep === 'declaration' ? renderDeclarationSelection() : renderSelectedDeclarationPreview()}
+          </View>
+        </ScrollView>
 
         <View style={styles.bottomBar}>
           <TouchableOpacity
@@ -312,8 +324,13 @@ export const QuestionerCardSelectionScreen: React.FC<QuestionerCardSelectionScre
 };
 
 const styles = StyleSheet.create({
-  accordionContainer: {
+  mainScrollView: {
     flex: 1,
+  },
+  mainScrollContent: {
+    paddingBottom: 16, // 下部に余白を追加して、最後の選択肢が見えるようにする
+  },
+  accordionContainer: {
     backgroundColor: 'rgba(0, 0, 0, 0.2)',
   },
   stepHeader: {
@@ -343,6 +360,7 @@ const styles = StyleSheet.create({
   },
   stepScrollContent: {
     padding: LAYOUT.spacing,
+    maxHeight: 400, // 選択肢が一定の高さを超えた場合にスクロール可能にする
   },
   opponentGrid: {
     gap: 12,
@@ -368,7 +386,6 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   cardGroupSelected: {
-    borderColor: COLORS.dangerDark,
     backgroundColor: 'rgba(198, 40, 40, 0.1)',
   },
   cardGroupHeader: {
@@ -469,38 +486,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: COLORS.text,
-  },
-  checkMark: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: COLORS.dangerDark,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkMarkText: {
-    color: COLORS.text,
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-  checkMarkSmall: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: COLORS.dangerDark,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkMarkTextSmall: {
-    color: COLORS.text,
-    fontWeight: 'bold',
-    fontSize: 12,
   },
   previewContainer: {
     padding: 16,

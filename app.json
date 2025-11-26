@@ -41,6 +41,12 @@
           "iosAppId": "ca-app-pub-3940256099942544~1458002511"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "3fbb4bb7-5aac-4013-835f-b91c1880063f"
+      }
+    },
+    "owner": "koyake"
   }
 }

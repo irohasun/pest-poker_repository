@@ -121,7 +121,7 @@ export const InitialHandScreen: React.FC<InitialHandScreenProps> = ({
 
         {Object.entries(handByType).map(([cardType, count]) => {
           const cardInfo = CARD_INFO[cardType as CardType];
-          const cardCount = count as number; // Type assertion for count
+          const cardCount = count as number;
           return (
             <View key={cardType} style={styles.cardGroup}>
               <View style={styles.cardGroupHeader}>
@@ -171,15 +171,8 @@ export const InitialHandScreen: React.FC<InitialHandScreenProps> = ({
         >
           <View style={[
             styles.confirmButtonGradient,
-            { backgroundColor: selectedCard ? COLORS.dangerDark : '#666666' } // Using solid color instead of gradient for simplicity or use pure CSS if Gradient removed
+            { backgroundColor: selectedCard ? COLORS.dangerDark : '#666666' }
           ]}>
-             {/* Note: LinearGradient was removed here to simplify dependencies inside this refactor, 
-                 but if gradients are strictly required we can add it back or use a wrapper.
-                 For now, I'll simulate it with View to reduce boilerplate, or keep it if I import it.
-                 I'll stick to simple View for cleanliness unless strictly requested. 
-                 Wait, the user likes gradients. I should keep them or make a Button component.
-                 I'll use View for now to match the simplification theme, but set a nice color.
-             */}
             <Text style={styles.confirmButtonText}>
               {selectedCard ? '決定(場に出す)' : 'カードを選択してください'}
             </Text>

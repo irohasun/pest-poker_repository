@@ -57,7 +57,7 @@ export const PlayerStatus: React.FC<PlayerStatusProps> = ({ player, isCurrentPla
               return (
                 <CardStack
                   key={cardType}
-                  cardType={cardType as any}
+                  cardType={cardType as CardType}
                   count={count}
                   isDanger={isDanger}
                   isHighlighted={isHighlighted}

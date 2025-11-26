@@ -7,7 +7,7 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GameState, CardType, CARD_INFO } from '../types/game';
 import { passCard } from '../utils/gameLogic';
@@ -27,6 +27,7 @@ export const PassDeclarationScreen: React.FC<PassDeclarationScreenProps> = ({
   onNext,
   onBack,
 }) => {
+  const insets = useSafeAreaInsets();
   if (!gameState.currentTurn) return null;
 
   const opponent = gameState.players[selectedOpponentIndex];
@@ -40,8 +41,8 @@ export const PassDeclarationScreen: React.FC<PassDeclarationScreenProps> = ({
 
   return (
     <LinearGradient colors={['#1E1E1E', '#121212', '#0A0A0A']} style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-        <View style={styles.header}>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
+        <View style={[styles.header, { paddingTop: Math.max(insets.top / 8, 4) }]}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <Text style={styles.headerButtonText}>◀ 戻る</Text>
           </TouchableOpacity>
@@ -84,8 +85,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    paddingTop: 50, // ノッチで隠れないように50pxの余白を追加
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    minHeight: 44,
     backgroundColor: 'rgba(45, 45, 45, 0.6)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',

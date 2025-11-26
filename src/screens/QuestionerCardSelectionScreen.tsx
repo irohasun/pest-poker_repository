@@ -253,7 +253,7 @@ export const QuestionerCardSelectionScreen: React.FC<QuestionerCardSelectionScre
   return (
     <ScreenLayout
       title="出題の設定"
-      onBack={undefined} // Removed as per previous request
+      onBack={undefined}
       style={{ paddingBottom: 0 }}
       onPause={onPause}
       onReturnToTitle={onReturnToTitle}

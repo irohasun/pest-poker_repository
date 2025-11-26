@@ -11,7 +11,7 @@ import { GameState, CARD_INFO } from '../types/game';
 import { PlayerStatus } from '../components/PlayerStatus';
 import { startTurn } from '../utils/gameLogic';
 import { ScreenLayout } from '../components/ScreenLayout';
-import { COLORS, LAYOUT } from '../constants/theme';
+import { COLORS, LAYOUT, TIMING } from '../constants/theme';
 
 interface GameMainScreenProps {
   gameState: GameState;
@@ -53,7 +53,7 @@ export const GameMainScreen: React.FC<GameMainScreenProps> = ({
         // 少し遅延させてから遷移（画面がレンダリングされるのを待つ）
         const timer = setTimeout(() => {
           onSelectOpponent();
-        }, 100);
+        }, TIMING.screenTransitionDelay);
         return () => clearTimeout(timer);
       } else {
         // ターンが開始されていない場合、ターンを開始
@@ -77,11 +77,6 @@ export const GameMainScreen: React.FC<GameMainScreenProps> = ({
   return (
     <ScreenLayout
       title={`ターン: ${gameState.turnNumber + 1}`}
-      headerRight={
-        <TouchableOpacity style={styles.pauseButton}>
-          <Text style={styles.headerButtonText}>⏸</Text>
-        </TouchableOpacity>
-      }
       style={{ paddingBottom: 0 }}
       onBack={undefined} // No back button on main screen usually
       onPause={onPause}
@@ -132,14 +127,6 @@ export const GameMainScreen: React.FC<GameMainScreenProps> = ({
 };
 
 const styles = StyleSheet.create({
-  pauseButton: {
-    padding: 8,
-    marginRight: -8,
-  },
-  headerButtonText: {
-    color: COLORS.textDim,
-    fontSize: 16,
-  },
   content: {
     flex: 1,
   },

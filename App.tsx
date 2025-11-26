@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { StatusBar } from 'expo-status-bar';
 import { Asset } from 'expo-asset';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import mobileAds from 'react-native-google-mobile-ads';
 import { CARD_INFO } from './src/types/game';
+import { ScreenWrapper } from './src/components/ScreenWrapper';
 import { TitleScreen } from './src/screens/TitleScreen';
 import { PlayerSetupScreen } from './src/screens/PlayerSetupScreen';
 import { InitialHandScreen } from './src/screens/InitialHandScreen';
@@ -16,8 +16,10 @@ import { PassOpponentSelectionScreen } from './src/screens/PassOpponentSelection
 import { PassDeclarationScreen } from './src/screens/PassDeclarationScreen';
 import { PassCardSelectionScreen } from './src/screens/PassCardSelectionScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
+import { GameEndScreen } from './src/screens/GameEndScreen';
 import { useGameFlow } from './src/hooks/useGameFlow';
 import { COLORS } from './src/constants/theme';
+import { initializeInterstitialAd } from './src/utils/adManager';
 
 export default function App() {
   const {
@@ -25,9 +27,9 @@ export default function App() {
     currentScreen,
     initialHandPlayerIndex,
     passSelectedOpponent,
-    lastJudgment,
     cardRecipientIndex,
     receivedCardType,
+    gameCount,
     startGame,
     completePlayerSetup,
     handleInitialHandNext,
@@ -44,17 +46,34 @@ export default function App() {
     selectPassOpponent,
     completePassDeclaration,
     navigateTo,
+    restartGame,
   } = useGameFlow();
 
   const [isReady, setIsReady] = useState(false);
+
+  // GoogleAdMobの初期化
+  useEffect(() => {
+    const initializeAds = async () => {
+      try {
+        await mobileAds().initialize();
+        console.log('GoogleAdMob initialized');
+        // インタースティシャル広告の初期化
+        initializeInterstitialAd();
+      } catch (e) {
+        console.warn('Failed to initialize GoogleAdMob:', e);
+      }
+    };
+
+    initializeAds();
+  }, []);
 
   // 画像プリロード処理
   useEffect(() => {
     const preloadAssets = async () => {
       try {
         const imageAssets = Object.values(CARD_INFO).map(info => {
-          // Asset.fromModuleはImageSourcePropTypeの厳密な型定義と一致しない場合があるため、キャストして対応
-          return Asset.fromModule(info.image as any).downloadAsync();
+          // Asset.fromModuleの型定義の互換性のため、型アサーションを使用
+          return Asset.fromModule(info.image as unknown as number).downloadAsync();
         });
 
         // 裏面画像のプリロードを追加
@@ -74,30 +93,27 @@ export default function App() {
 
   if (!isReady) {
     return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
+      <ScreenWrapper>
         <View style={styles.loadingContainer}>
-          <StatusBar style="light" />
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
-      </GestureHandlerRootView>
+      </ScreenWrapper>
     );
   }
 
   // タイトル画面
   if (currentScreen === 'title') {
     return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar style="light" />
+      <ScreenWrapper>
         <TitleScreen onStartGame={startGame} />
-      </GestureHandlerRootView>
+      </ScreenWrapper>
     );
   }
 
   if (!gameState) return null;
 
-  // 一時停止処理（今後実装予定）
   const handlePause = () => {
-    // TODO: 一時停止機能を実装
+    // 一時停止機能は未実装
     console.log('一時停止');
   };
 
@@ -114,21 +130,19 @@ export default function App() {
   // プレイヤー登録画面
   if (currentScreen === 'setup') {
     return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar style="light" />
+      <ScreenWrapper>
         <PlayerSetupScreen
           onComplete={completePlayerSetup}
           onBack={() => navigateTo('title')}
         />
-      </GestureHandlerRootView>
+      </ScreenWrapper>
     );
   }
 
   // 初期手札確認画面
   if (currentScreen === 'initialHand') {
     return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar style="light" />
+      <ScreenWrapper>
         <InitialHandScreen
           players={gameState.players}
           currentPlayerIndex={initialHandPlayerIndex}
@@ -138,15 +152,14 @@ export default function App() {
           onReturnToTitle={handleReturnToTitle}
           onEndGame={handleEndGame}
         />
-      </GestureHandlerRootView>
+      </ScreenWrapper>
     );
   }
 
   // 出題者決定画面
   if (currentScreen === 'questionerSelection') {
     return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar style="light" />
+      <ScreenWrapper>
         <QuestionerSelectionScreen
           gameState={gameState}
           onSelectQuestioner={selectQuestioner}
@@ -154,15 +167,14 @@ export default function App() {
           onReturnToTitle={handleReturnToTitle}
           onEndGame={handleEndGame}
         />
-      </GestureHandlerRootView>
+      </ScreenWrapper>
     );
   }
 
   // 出題者：カード選択画面（統合版）
   if (currentScreen === 'questionerCardSelection') {
     return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar style="light" />
+      <ScreenWrapper>
         <QuestionerCardSelectionScreen
           gameState={gameState}
           onUpdateGameState={updateGameState}
@@ -172,15 +184,14 @@ export default function App() {
           onReturnToTitle={handleReturnToTitle}
           onEndGame={handleEndGame}
         />
-      </GestureHandlerRootView>
+      </ScreenWrapper>
     );
   }
 
   // 回答者：判定画面
   if (currentScreen === 'answererJudgment') {
     return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar style="light" />
+      <ScreenWrapper>
         <AnswererJudgmentScreen
           gameState={gameState}
           onUpdateGameState={updateGameState}
@@ -192,59 +203,55 @@ export default function App() {
           onReturnToTitle={handleReturnToTitle}
           onEndGame={handleEndGame}
         />
-      </GestureHandlerRootView>
+      </ScreenWrapper>
     );
   }
 
   // カード確認画面
   if (currentScreen === 'cardCheck') {
     return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar style="light" />
+      <ScreenWrapper>
         <CardCheckScreen
           gameState={gameState}
           onNext={completeCardCheck}
           onBack={() => navigateTo('answererJudgment')}
         />
-      </GestureHandlerRootView>
+      </ScreenWrapper>
     );
   }
 
   // 渡す：統合選択画面（最新実装）
   if (currentScreen === 'passCardSelection') {
     return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar style="light" />
+      <ScreenWrapper>
         <PassCardSelectionScreen
           gameState={gameState}
           onUpdateGameState={updateGameState}
           onNext={completePassCardSelection}
           onBack={() => navigateTo('cardCheck')}
         />
-      </GestureHandlerRootView>
+      </ScreenWrapper>
     );
   }
 
   // 渡す：相手選択画面（古い実装、後方互換性のため残す）
   if (currentScreen === 'passOpponentSelection') {
     return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar style="light" />
+      <ScreenWrapper>
         <PassOpponentSelectionScreen
           gameState={gameState}
           onUpdateGameState={updateGameState}
           onNext={selectPassOpponent}
           onBack={() => navigateTo('cardCheck')}
         />
-      </GestureHandlerRootView>
+      </ScreenWrapper>
     );
   }
 
   // 渡す：宣言選択画面（古い実装、後方互換性のため残す）
   if (currentScreen === 'passDeclaration' && passSelectedOpponent !== null) {
     return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar style="light" />
+      <ScreenWrapper>
         <PassDeclarationScreen
           gameState={gameState}
           selectedOpponentIndex={passSelectedOpponent}
@@ -252,45 +259,52 @@ export default function App() {
           onNext={completePassDeclaration}
           onBack={() => navigateTo('passOpponentSelection')}
         />
-      </GestureHandlerRootView>
+      </ScreenWrapper>
     );
   }
 
   // 結果確認画面
-  // cardRecipientIndexがnullでも、ResultScreen内で適切にハンドリングするか、
-  // useGameFlow側で同期をとる必要がありますが、ここでは最低限のnullチェックを行います。
-  // 注意: useGameFlowでsetCardRecipientIndexとsetCurrentScreenを同時に呼んでいるため、
-  // バッチ更新が効く場合は問題ありませんが、非同期のタイミングずれを防ぐため
-  // nullチェックは残しつつ、ブランクスクリーン回避のためにローディングなどを検討する余地があります。
   if (currentScreen === 'result') {
     if (cardRecipientIndex === null) {
-        // cardRecipientIndexが未設定の場合はローディングまたはnullを返す
-        // (通常は発生しないはずだが、念のため)
+      // cardRecipientIndexが未設定の場合はローディングを表示
         return (
-            <GestureHandlerRootView style={{ flex: 1 }}>
+        <ScreenWrapper>
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={COLORS.primary} />
                 </View>
-            </GestureHandlerRootView>
+        </ScreenWrapper>
         );
     }
     return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar style="light" />
+      <ScreenWrapper>
         <ResultScreen
           gameState={gameState}
           cardRecipientIndex={cardRecipientIndex}
           receivedCardType={receivedCardType}
           onNext={completeResult}
         />
-      </GestureHandlerRootView>
+      </ScreenWrapper>
+    );
+  }
+
+  // ゲーム終了画面
+  if (currentScreen === 'gameEnd') {
+    return (
+      <ScreenWrapper>
+        <GameEndScreen
+          gameState={gameState}
+          gameCount={gameCount}
+          onPlayAgain={restartGame}
+          onChangePlayerCount={startGame}
+          onReturnToTitle={handleReturnToTitle}
+        />
+      </ScreenWrapper>
     );
   }
 
   // ゲームメイン画面
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <StatusBar style="light" />
+    <ScreenWrapper>
       <GameMainScreen
         gameState={gameState}
         onUpdateGameState={updateGameState}
@@ -300,7 +314,7 @@ export default function App() {
         onReturnToTitle={handleReturnToTitle}
         onEndGame={handleEndGame}
       />
-    </GestureHandlerRootView>
+    </ScreenWrapper>
   );
 }
 

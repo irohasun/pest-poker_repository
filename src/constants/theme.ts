@@ -30,9 +30,14 @@ export const COLORS = {
 };
 
 export const LAYOUT = {
-  headerPaddingTop: 50,
+  // headerPaddingTopは動的にuseSafeAreaInsets()で取得するため削除
+  // headerPaddingTop: 50, // 削除: 動的なノッチ処理を使用
   headerHeight: 60, // Approximation
   spacing: 16,
   borderRadius: 12,
 };
+
+export const TIMING = {
+  screenTransitionDelay: 100, // 画面遷移の遅延時間（ms）
+} as const;
 

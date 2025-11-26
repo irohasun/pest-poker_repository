@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GameState, Player } from '../types/game';
 import { PlayerStatus } from '../components/PlayerStatus';
@@ -28,6 +28,7 @@ export const QuestionerSelectionScreen: React.FC<QuestionerSelectionScreenProps>
   onReturnToTitle,
   onEndGame,
 }) => {
+  const insets = useSafeAreaInsets();
   const [selectedPlayerIndex, setSelectedPlayerIndex] = useState<number | null>(null);
   const [showWarning, setShowWarning] = useState(false);
 
@@ -71,8 +72,8 @@ export const QuestionerSelectionScreen: React.FC<QuestionerSelectionScreenProps>
 
   return (
     <LinearGradient colors={['#1E1E1E', '#121212', '#0A0A0A']} style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-        <View style={styles.header}>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
+        <View style={[styles.header, { paddingTop: Math.max(insets.top / 8, 4) }]}>
           <Text style={styles.headerTitle}>最初の出題者を決定</Text>
         </View>
 
@@ -136,8 +137,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    padding: 16,
-    paddingTop: 50,
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: 'rgba(45, 45, 45, 0.6)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',

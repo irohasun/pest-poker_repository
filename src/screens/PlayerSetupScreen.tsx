@@ -8,7 +8,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 
 interface PlayerSetupScreenProps {
@@ -20,8 +20,15 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
   onComplete,
   onBack,
 }) => {
+  const insets = useSafeAreaInsets();
   const [playerCount, setPlayerCount] = useState<number>(3);
   const [playerNames, setPlayerNames] = useState<string[]>(['', '', '', '', '', '']);
+
+  // デバッグ: ノッチの高さを確認（開発時のみ）
+  React.useEffect(() => {
+    console.log('SafeArea insets.top:', insets.top);
+    console.log('Calculated paddingTop:', Math.max(insets.top / 8, 4));
+  }, [insets.top]);
 
   const handlePlayerCountChange = (count: number) => {
     setPlayerCount(count);
@@ -61,8 +68,8 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
 
   return (
     <LinearGradient colors={['#1E1E1E', '#121212', '#0A0A0A']} style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
+        <View style={[styles.header, { paddingTop: Math.max(insets.top / 8, 4) }]}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <Text style={styles.headerButtonText}>◀ 戻る</Text>
           </TouchableOpacity>
@@ -143,7 +150,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    minHeight: 44,
     backgroundColor: 'rgba(45, 45, 45, 0.6)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',

@@ -1,176 +1,53 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { StyleSheet, TouchableOpacity, ImageBackground, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 
 interface TitleScreenProps {
   onStartGame: () => void;
   onShowRules?: () => void;
 }
 
-export const TitleScreen: React.FC<TitleScreenProps> = ({ onStartGame, onShowRules }) => {
-  const bounceAnim = React.useRef(new Animated.Value(0)).current;
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-  React.useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(bounceAnim, {
-          toValue: -10,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(bounceAnim, {
-          toValue: 0,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  }, []);
+export const TitleScreen: React.FC<TitleScreenProps> = ({ onStartGame, onShowRules }) => {
 
   return (
-    <LinearGradient
-      colors={['#1E1E1E', '#121212', '#0A0A0A']}
+    <ImageBackground
+      source={require('../../assets/title.png')}
       style={styles.container}
+      resizeMode="cover"
     >
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
-      <View style={styles.content}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>PESTPOKER</Text>
-        </View>
-
-        <Animated.View style={[styles.emojisContainer, { transform: [{ translateY: bounceAnim }] }]}>
-          <Text style={styles.emoji}>🦇</Text>
-          <Text style={styles.emoji}>🕷️</Text>
-          <Text style={styles.emoji}>🦂</Text>
-          <Text style={styles.emoji}>🐭</Text>
-          <Text style={styles.emoji}>🐸</Text>
-          <Text style={styles.emoji}>🪰</Text>
-          <Text style={styles.emoji}>🪲</Text>
-          <Text style={styles.emoji}>🦟</Text>
-        </Animated.View>
-
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={onStartGame}
-            activeOpacity={0.8}
-          >
-            <LinearGradient
-              colors={['#C62828', '#D32F2F']}
-              style={styles.buttonGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-            >
-              <Text style={styles.primaryButtonText}>▶ ゲーム開始</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-
-          {onShowRules && (
-            <TouchableOpacity style={styles.secondaryButton} onPress={onShowRules} activeOpacity={0.8}>
-              <Text style={styles.secondaryButtonText}>ルール説明</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
+        {/* STARTボタンの位置に透明なボタンを配置 */}
+        <TouchableOpacity
+          style={styles.startButton}
+          onPress={onStartGame}
+          activeOpacity={0.8}
+        />
       </SafeAreaView>
-    </LinearGradient>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: '100%',
+    height: '100%',
   },
   safeArea: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    position: 'relative',
   },
-  content: {
-    alignItems: 'center',
-    width: '100%',
-    maxWidth: 400,
-    padding: 20,
-  },
-  titleContainer: {
-    borderWidth: 4,
-    borderColor: 'rgba(255, 167, 38, 0.5)',
-    borderRadius: 12,
-    padding: 32,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    marginBottom: 40,
-    shadowColor: '#C62828',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
-    elevation: 8,
-  },
-  title: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    letterSpacing: 2,
-  },
-  subtitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: 'rgba(255, 255, 255, 0.8)',
-    textAlign: 'center',
-    letterSpacing: 2,
-  },
-  emojisContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-    gap: 16,
-    marginBottom: 48,
-  },
-  emoji: {
-    fontSize: 48,
-  },
-  buttonsContainer: {
-    width: '100%',
-    gap: 16,
-  },
-  primaryButton: {
-    width: '100%',
-    borderRadius: 12,
-    overflow: 'hidden',
-    shadowColor: '#C62828',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  buttonGradient: {
-    paddingVertical: 16,
-    paddingHorizontal: 48,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 12,
-  },
-  primaryButtonText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    letterSpacing: 1,
-  },
-  secondaryButton: {
-    width: '100%',
-    paddingVertical: 16,
-    paddingHorizontal: 48,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.24)',
-    alignItems: 'center',
-  },
-  secondaryButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.95)',
+  // STARTボタンの位置に透明なボタンを配置
+  // 画像内のSTARTボタン（新聞紙）の位置に合わせて調整
+  startButton: {
+    position: 'absolute',
+    // 画面下部中央に配置（画像に合わせて調整が必要な場合があります）
+    bottom: SCREEN_HEIGHT * 0.12 + 60, // 画面高さの12%上からさらに60px分だけ上に移動
+    alignSelf: 'center', // 中央揃え
+    width: SCREEN_WIDTH * 0.6, // 画面幅の60%（新聞紙の幅に合わせて調整）
+    height: 150, // STARTボタンの高さ（100px × 1.5倍 = 150px）
+    backgroundColor: 'transparent',
   },
 });

@@ -122,7 +122,9 @@ export const PassCardSelectionScreen: React.FC<PassCardSelectionScreenProps> = (
                 onPress={() => handleOpponentSelect(playerIndex)}
                 activeOpacity={0.8}
               >
-                <PlayerStatus player={player} isCurrentPlayer={isSelected} />
+                <View style={styles.playerStatusWrapper}>
+                  <PlayerStatus player={player} isCurrentPlayer={false} />
+                </View>
               </TouchableOpacity>
             );
           })}
@@ -162,7 +164,9 @@ export const PassCardSelectionScreen: React.FC<PassCardSelectionScreenProps> = (
         activeOpacity={0.8}
       >
         <View style={[styles.opponentCard, styles.opponentCardSelectedPreview]}>
-          <PlayerStatus player={player} isCurrentPlayer={true} />
+          <View style={styles.playerStatusWrapper}>
+            <PlayerStatus player={player} isCurrentPlayer={false} />
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -185,6 +189,14 @@ export const PassCardSelectionScreen: React.FC<PassCardSelectionScreenProps> = (
     );
   };
 
+  // 正解のカードと前の人間の宣言結果を取得
+  const actualCard = gameState.currentTurn?.card || null;
+  const lastHistoryEntry = gameState.currentTurn?.history && gameState.currentTurn.history.length > 0
+    ? gameState.currentTurn.history[gameState.currentTurn.history.length - 1]
+    : null;
+  const previousPlayer = lastHistoryEntry ? gameState.players[lastHistoryEntry.player] : null;
+  const previousDeclaration = lastHistoryEntry?.declared || null;
+
   return (
     <ScreenLayout
       title="他の人に渡す"
@@ -194,6 +206,39 @@ export const PassCardSelectionScreen: React.FC<PassCardSelectionScreenProps> = (
       onReturnToTitle={onReturnToTitle}
       onEndGame={onEndGame}
     >
+      {/* 正解のカードと前の宣言結果を画面上部に固定表示 */}
+      <View style={styles.infoBar}>
+        <View style={styles.infoItem}>
+          <Text style={styles.infoLabel}>正解のカード</Text>
+          {actualCard && (
+            <View style={styles.infoCardContainer}>
+              <Image 
+                source={CARD_INFO[actualCard].image} 
+                style={styles.infoCardImage} 
+                resizeMode="contain" 
+              />
+              <Text style={styles.infoCardName}>{CARD_INFO[actualCard].name}</Text>
+            </View>
+          )}
+        </View>
+        <View style={styles.infoDivider} />
+        <View style={styles.infoItem}>
+          <Text style={styles.infoLabel}>
+            {previousPlayer ? `${previousPlayer.name}さんの宣言` : '前の宣言'}
+          </Text>
+          {previousDeclaration && (
+            <View style={styles.infoCardContainer}>
+              <Image 
+                source={CARD_INFO[previousDeclaration].image} 
+                style={styles.infoCardImage} 
+                resizeMode="contain" 
+              />
+              <Text style={styles.infoCardName}>{CARD_INFO[previousDeclaration].name}</Text>
+            </View>
+          )}
+        </View>
+      </View>
+
       <ScrollView 
         style={styles.mainScrollView}
         contentContainerStyle={styles.mainScrollContent}
@@ -295,11 +340,16 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'transparent',
   },
+  playerStatusWrapper: {
+    marginVertical: -6, // PlayerStatusのmarginVerticalを打ち消す
+  },
   opponentCardSelected: {
-    backgroundColor: 'rgba(255, 152, 0, 0.1)',
+    borderColor: COLORS.primary,
+    backgroundColor: 'rgba(255, 167, 38, 0.3)',
   },
   opponentCardSelectedPreview: {
-    backgroundColor: 'rgba(255, 152, 0, 0.1)',
+    borderColor: COLORS.primary,
+    backgroundColor: 'rgba(255, 167, 38, 0.3)',
   },
   cardGrid: {
     flexDirection: 'row',
@@ -377,6 +427,47 @@ const styles = StyleSheet.create({
     color: COLORS.textDim,
     textAlign: 'center',
     lineHeight: 28,
+  },
+  infoBar: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(45, 45, 45, 0.8)',
+    borderBottomWidth: 2,
+    borderBottomColor: COLORS.borderHighlight,
+    paddingVertical: 12,
+    paddingHorizontal: LAYOUT.spacing,
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  infoItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  infoLabel: {
+    fontSize: 12,
+    color: COLORS.textDim,
+    marginBottom: 8,
+    fontWeight: '600',
+  },
+  infoCardContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  infoCardImage: {
+    width: 60,
+    height: 75,
+    marginBottom: 4,
+  },
+  infoCardName: {
+    fontSize: 11,
+    color: COLORS.text,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  infoDivider: {
+    width: 1,
+    height: 90,
+    backgroundColor: COLORS.border,
+    marginHorizontal: LAYOUT.spacing,
   },
 });
 

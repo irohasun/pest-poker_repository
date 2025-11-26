@@ -35,8 +35,8 @@ export const CardCheckScreen: React.FC<CardCheckScreenProps> = ({
   const isTruth = gameState.currentTurn.card === gameState.currentTurn.declaredAs;
 
   const handleWarningTap = () => {
-    setShowWarning(false);
-    setShowCard(true);
+        setShowWarning(false);
+        setShowCard(true);
   };
 
   if (showWarning) {
@@ -48,17 +48,17 @@ export const CardCheckScreen: React.FC<CardCheckScreenProps> = ({
           activeOpacity={0.9}
         >
           <Text style={styles.warningTitle}>⚠️</Text>
-          <Text style={styles.warningText}>
-            これから実際のカードを{'\n'}
-            確認します{'\n'}
-            {'\n'}
-            他のプレイヤーには{'\n'}
-            見えないように{'\n'}
-            注意してください
-          </Text>
+            <Text style={styles.warningText}>
+              これから実際のカードを{'\n'}
+              確認します{'\n'}
+              {'\n'}
+              他のプレイヤーには{'\n'}
+              見えないように{'\n'}
+              注意してください
+            </Text>
           <Text style={styles.tapToRevealText}>
             タップしてカードを確認
-          </Text>
+            </Text>
         </TouchableOpacity>
       </ScreenLayout>
     );
@@ -102,7 +102,7 @@ export const CardCheckScreen: React.FC<CardCheckScreenProps> = ({
             タップして次へ
           </Text>
         </ScrollView>
-      </TouchableOpacity>
+          </TouchableOpacity>
     </ScreenLayout>
   );
 };

@@ -61,5 +61,5 @@ export const CARD_INFO: Record<CardType, CardInfo> = {
   frog: { type: 'frog', name: 'カエル', emoji: '🐸', image: require('../../assets/cards/pests/flog.png') },
   fly: { type: 'fly', name: 'ハエ', emoji: '🪰', image: require('../../assets/cards/pests/bug.png') },
   stinkbug: { type: 'stinkbug', name: 'カメムシ', emoji: '🪲', image: require('../../assets/cards/pests/stinkbug.png') },
-  centipede: { type: 'centipede', name: 'ムカデ', emoji: '🦟', image: require('../../assets/cards/pests/centipede.png') },
+  centipede: { type: 'centipede', name: 'ムカデ', emoji: '🦂', image: require('../../assets/cards/pests/centipede.png') },
 };

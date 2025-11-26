@@ -25,6 +25,9 @@ export const useGameFlow = () => {
   const [lastJudgment, setLastJudgment] = useState<'believe' | 'doubt' | null>(null);
   const [cardRecipientIndex, setCardRecipientIndex] = useState<number | null>(null);
   const [receivedCardType, setReceivedCardType] = useState<CardType | null>(null); // 引き取られたカードの種類を保持
+  const [gameCount, setGameCount] = useState(0); // 試合回数のカウント（1試合目判定用）
+  const [lastPlayerCount, setLastPlayerCount] = useState<number | null>(null); // 前回のプレイヤー人数
+  const [lastPlayerNames, setLastPlayerNames] = useState<string[]>([]); // 前回のプレイヤー名リスト
 
   const startGame = useCallback(() => {
     setCurrentScreen('setup');
@@ -49,6 +52,11 @@ export const useGameFlow = () => {
     setGameState(newGame);
     setInitialHandPlayerIndex(0);
     setCurrentScreen('initialHand');
+    // 前回のプレイヤー情報を保存（ゲーム再開用）
+    setLastPlayerCount(playerCount);
+    setLastPlayerNames(playerNames);
+    // 新しいゲーム開始時に試合回数をインクリメント
+    setGameCount(prev => prev + 1);
   }, []);
 
   const handleInitialHandNext = useCallback((selectedCard: CardType) => {
@@ -73,15 +81,7 @@ export const useGameFlow = () => {
       return newState;
     });
 
-    setInitialHandPlayerIndex(prev => {
-      // Note: we can't easily access gameState here if it's stale, but 
-      // since we update it locally or check bounds in render, it's safer to use functional update or check before calling
-      // However, we rely on the component to check `if (!isLastPlayer)` before calling this.
-      // But for safety, we should pass the total count or handle it in the component.
-      // Refactoring note: The component handles the index increment logic mostly.
-      // Let's assume the component decides when to call complete vs next.
-      return prev + 1;
-    });
+    setInitialHandPlayerIndex(prev => prev + 1);
   }, [initialHandPlayerIndex]);
 
   const completeInitialHand = useCallback(() => {
@@ -127,30 +127,16 @@ export const useGameFlow = () => {
     // 引き取られたカードの種類を保存（makeJudgment後はcurrentTurnがnullになるため）
     setReceivedCardType(card);
     
-    // CardFlipScreenをスキップして、直接ゲーム状態を更新してResultScreenへ
+    // 直接ゲーム状態を更新してResultScreenへ遷移
     const newState = makeJudgment(gameState, judgment === 'believe');
     updateGameState(newState);
     
-    // 状態更新のタイミングを制御
     if (newState.phase !== 'gameOver') {
-      // 1. まずカード受取人を設定
       setCardRecipientIndex(recipientIndex);
-      // 2. 次に画面遷移を設定（cardRecipientIndexが設定された状態でレンダリングされるようにする）
-      // Reactの状態更新はバッチ処理されることが多いが、順序を保証するためにここでの設定は重要
       setCurrentScreen('result');
     }
   }, [gameState, updateGameState]);
 
-  const completeCardFlip = useCallback(() => {
-    if (!gameState || !lastJudgment || cardRecipientIndex === null) return;
-    
-    const newState = makeJudgment(gameState, lastJudgment === 'believe');
-    updateGameState(newState);
-    
-    if (newState.phase !== 'gameOver') {
-      setCurrentScreen('result');
-    }
-  }, [gameState, lastJudgment, cardRecipientIndex, updateGameState]);
 
   const completeResult = useCallback(() => {
     if (!gameState || cardRecipientIndex === null) return;
@@ -203,6 +189,27 @@ export const useGameFlow = () => {
     setCurrentScreen(screen);
   }, []);
 
+  // ゲームを再開する（もう一度プレイ）
+  const restartGame = useCallback(() => {
+    // 前回のプレイヤー情報が保存されている場合のみ再開
+    if (lastPlayerCount === null || lastPlayerNames.length === 0) {
+      console.warn('Cannot restart game: player information not found');
+      return;
+    }
+
+    const newGame = initializeGame(lastPlayerCount, lastPlayerNames);
+    setGameState(newGame);
+    setInitialHandPlayerIndex(0);
+    setCurrentScreen('initialHand');
+    // 状態をクリア
+    setLastJudgment(null);
+    setCardRecipientIndex(null);
+    setReceivedCardType(null);
+    setPassSelectedOpponent(null);
+    // 新しいゲーム開始時に試合回数をインクリメント
+    setGameCount(prev => prev + 1);
+  }, [lastPlayerCount, lastPlayerNames]);
+
   return {
     gameState,
     currentScreen,
@@ -211,6 +218,7 @@ export const useGameFlow = () => {
     lastJudgment,
     cardRecipientIndex,
     receivedCardType, // 引き取られたカードの種類を返す
+    gameCount, // 試合回数（1試合目判定用）
     startGame,
     completePlayerSetup,
     handleInitialHandNext,
@@ -220,7 +228,6 @@ export const useGameFlow = () => {
     startTurn,
     completeQuestionerCardSelection,
     makeJudgmentCall,
-    completeCardFlip,
     completeResult,
     handlePass,
     completeCardCheck,
@@ -228,6 +235,7 @@ export const useGameFlow = () => {
     selectPassOpponent, // 後方互換性のため残す（古い実装用）
     completePassDeclaration, // 後方互換性のため残す（古い実装用）
     navigateTo,
+    restartGame, // ゲーム再開用
   };
 };
 

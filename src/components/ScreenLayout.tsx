@@ -15,6 +15,7 @@ import {
 import { SafeAreaView, Edges, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, LAYOUT } from '../constants/theme';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -48,6 +49,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onConfirm,
   onCancel,
 }) => {
+  const { t } = useLanguage();
   const [fadeAnim] = useState(new Animated.Value(0));
 
   useEffect(() => {
@@ -94,7 +96,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                   onPress={onCancel}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.dialogButtonTextCancel}>いいえ</Text>
+                  <Text style={styles.dialogButtonTextCancel}>{t('common.no')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.dialogButton, styles.dialogButtonConfirm]}
@@ -107,7 +109,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                   >
-                    <Text style={styles.dialogButtonTextConfirm}>はい</Text>
+                    <Text style={styles.dialogButtonTextConfirm}>{t('common.yes')}</Text>
                   </LinearGradient>
                 </TouchableOpacity>
               </View>
@@ -132,6 +134,7 @@ export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
   onEndGame,
   showSettings = true, // デフォルトで設定アイコンを表示
 }) => {
+  const { t } = useLanguage();
   const insets = useSafeAreaInsets();
   const [confirmDialogVisible, setConfirmDialogVisible] = useState(false);
 
@@ -164,7 +167,7 @@ export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
               <View style={styles.leftContainer}>
                 {onBack ? (
                   <TouchableOpacity onPress={onBack} style={styles.backButton}>
-                    <Text style={styles.headerButtonText}>◀ 戻る</Text>
+                    <Text style={styles.headerButtonText}>◀ {t('common.back')}</Text>
                   </TouchableOpacity>
                 ) : (
                   <View style={styles.placeholder} />
@@ -203,8 +206,8 @@ export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
       {showSettings && onReturnToTitle && (
         <ConfirmDialog
           visible={confirmDialogVisible}
-          title="タイトルに戻る"
-          message="ゲームの進行状況は保存されません"
+          title={t('dialog.returnToTitle')}
+          message={t('dialog.confirmExit')}
           onConfirm={handleConfirmReturnToTitle}
           onCancel={handleCancelReturnToTitle}
         />
@@ -341,4 +344,3 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
 });
-

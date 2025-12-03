@@ -1,6 +1,6 @@
 {
   "cli": {
-    "version": ">= 14.0.0",
+    "version": ">= 16.0.0",
     "appVersionSource": "remote"
   },
   "build": {
@@ -30,13 +30,7 @@
     }
   },
   "submit": {
-    "production": {
-      "ios": {
-        "appleId": "your-apple-id@example.com",
-        "ascAppId": "your-app-store-connect-app-id",
-        "appleTeamId": "your-apple-team-id"
-      }
-    }
+    "production": {}
   }
 }
 

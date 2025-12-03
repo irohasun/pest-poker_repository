@@ -16,6 +16,7 @@ import { selectCard, selectDeclaration } from '../utils/gameLogic';
 import { PlayerStatus } from '../components/PlayerStatus';
 import { ScreenLayout } from '../components/ScreenLayout';
 import { COLORS, LAYOUT } from '../constants/theme';
+import { useLanguage } from '../contexts/LanguageContext';
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -44,6 +45,7 @@ export const QuestionerCardSelectionScreen: React.FC<QuestionerCardSelectionScre
   onReturnToTitle,
   onEndGame,
 }) => {
+  const { t, getCardName } = useLanguage();
   const [activeStep, setActiveStep] = useState<SelectionStep>('opponent');
   const [selectedOpponentIndex, setSelectedOpponentIndex] = useState<number | null>(null);
   const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
@@ -158,7 +160,7 @@ export const QuestionerCardSelectionScreen: React.FC<QuestionerCardSelectionScre
             activeOpacity={0.7}
           >
             <View style={styles.cardGroupHeader}>
-              <Text style={styles.cardTypeName}>{cardInfo.name}</Text>
+              <Text style={styles.cardTypeName}>{getCardName(cardInfo.type)}</Text>
               <Text style={styles.cardCount}>×{count}</Text>
             </View>
             <View style={styles.cardRow}>
@@ -192,7 +194,7 @@ export const QuestionerCardSelectionScreen: React.FC<QuestionerCardSelectionScre
               activeOpacity={0.7}
             >
               <Image source={cardInfo.image} style={styles.declarationImage} resizeMode="contain" />
-              <Text style={styles.cardName}>{cardInfo.name}</Text>
+              <Text style={styles.cardName}>{getCardName(cardInfo.type)}</Text>
             </TouchableOpacity>
           );
         })}
@@ -227,7 +229,7 @@ export const QuestionerCardSelectionScreen: React.FC<QuestionerCardSelectionScre
       >
         <View style={[styles.declarationButton, styles.declarationButtonSelected]}>
           <Image source={cardInfo.image} style={styles.declarationImage} resizeMode="contain" />
-          <Text style={styles.cardName}>{cardInfo.name}</Text>
+          <Text style={styles.cardName}>{getCardName(cardInfo.type)}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -244,7 +246,7 @@ export const QuestionerCardSelectionScreen: React.FC<QuestionerCardSelectionScre
       >
         <View style={[styles.declarationButton, styles.declarationButtonSelected]}>
           <Image source={cardInfo.image} style={styles.declarationImage} resizeMode="contain" />
-          <Text style={styles.cardName}>{cardInfo.name}</Text>
+          <Text style={styles.cardName}>{getCardName(cardInfo.type)}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -252,7 +254,7 @@ export const QuestionerCardSelectionScreen: React.FC<QuestionerCardSelectionScre
 
   return (
     <ScreenLayout
-      title="出題の設定"
+      title={t('questioner.setupTitle')}
       onBack={undefined}
       style={{ paddingBottom: 0 }}
       onPause={onPause}
@@ -271,7 +273,7 @@ export const QuestionerCardSelectionScreen: React.FC<QuestionerCardSelectionScre
               onPress={() => toggleStep('opponent')}
               activeOpacity={0.8}
             >
-              <Text style={styles.stepTitle}>1. 誰に渡しますか？</Text>
+              <Text style={styles.stepTitle}>{t('questioner.selectOpponent')}</Text>
             </TouchableOpacity>
             {activeStep === 'opponent' ? renderOpponentSelection() : renderSelectedOpponentPreview()}
 
@@ -282,7 +284,7 @@ export const QuestionerCardSelectionScreen: React.FC<QuestionerCardSelectionScre
               activeOpacity={0.8}
               disabled={!isStepComplete('opponent') && activeStep !== 'card'}
             >
-              <Text style={[styles.stepTitle, !isStepComplete('opponent') && styles.stepTitleDisabled]}>2. どのカードを渡しますか？</Text>
+              <Text style={[styles.stepTitle, !isStepComplete('opponent') && styles.stepTitleDisabled]}>{t('questioner.selectPassCard')}</Text>
             </TouchableOpacity>
             {activeStep === 'card' ? renderCardSelection() : renderSelectedCardPreview()}
 
@@ -293,7 +295,7 @@ export const QuestionerCardSelectionScreen: React.FC<QuestionerCardSelectionScre
               activeOpacity={0.8}
               disabled={!isStepComplete('card') && activeStep !== 'declaration'}
             >
-              <Text style={[styles.stepTitle, !isStepComplete('card') && styles.stepTitleDisabled]}>3. 何だと宣言しますか？</Text>
+              <Text style={[styles.stepTitle, !isStepComplete('card') && styles.stepTitleDisabled]}>{t('questioner.selectDeclaration')}</Text>
             </TouchableOpacity>
             {activeStep === 'declaration' ? renderDeclarationSelection() : renderSelectedDeclarationPreview()}
           </View>
@@ -315,7 +317,7 @@ export const QuestionerCardSelectionScreen: React.FC<QuestionerCardSelectionScre
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
             >
-              <Text style={styles.confirmButtonText}>決定して渡す</Text>
+              <Text style={styles.confirmButtonText}>{t('questioner.confirmPass')}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>

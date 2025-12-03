@@ -12,6 +12,7 @@ import { GameState, Player } from '../types/game';
 import { PlayerStatus } from '../components/PlayerStatus';
 import { ScreenLayout } from '../components/ScreenLayout';
 import { COLORS } from '../constants/theme';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface QuestionerSelectionScreenProps {
   gameState: GameState;
@@ -28,6 +29,7 @@ export const QuestionerSelectionScreen: React.FC<QuestionerSelectionScreenProps>
   onReturnToTitle,
   onEndGame,
 }) => {
+  const { t } = useLanguage();
   const insets = useSafeAreaInsets();
   const [selectedPlayerIndex, setSelectedPlayerIndex] = useState<number | null>(null);
   const [showWarning, setShowWarning] = useState(false);
@@ -54,16 +56,13 @@ export const QuestionerSelectionScreen: React.FC<QuestionerSelectionScreenProps>
           activeOpacity={0.9}
         >
           <Text style={styles.warningTitle}>
-            {selectedPlayer.name}さん{'\n'}
-            に渡してください
+            {t('initialHand.title', { name: selectedPlayer.name })}
           </Text>
           <Text style={styles.warningText}>
-            これからゲームを開始します{'\n'}
-            {selectedPlayer.name}さんは{'\n'}
-            準備ができたら画面をタップしてください
+            {t('initialHand.description')}
           </Text>
           <Text style={styles.tapToRevealText}>
-            タップしてゲーム開始
+            {t('setup.startGame')}
           </Text>
         </TouchableOpacity>
       </ScreenLayout>
@@ -74,17 +73,16 @@ export const QuestionerSelectionScreen: React.FC<QuestionerSelectionScreenProps>
     <LinearGradient colors={['#1E1E1E', '#121212', '#0A0A0A']} style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
         <View style={[styles.header, { paddingTop: Math.max(insets.top / 8, 4) }]}>
-          <Text style={styles.headerTitle}>最初の出題者を決定</Text>
+          <Text style={styles.headerTitle}>{t('questioner.selectQuestioner')}</Text>
         </View>
 
         <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
           <Text style={styles.instructionText}>
-            手札配りが完了しました。{'\n'}
-            最初の出題者を選択してください。
+            {t('questioner.selectQuestioner')}
           </Text>
 
           <View style={styles.statusPreview}>
-            <Text style={styles.statusTitle}>プレイヤー一覧</Text>
+            <Text style={styles.statusTitle}>{t('setup.title')}</Text>
             {gameState.players.map((player, index) => (
               <TouchableOpacity
                 key={`select-${player.id}`}
@@ -118,8 +116,8 @@ export const QuestionerSelectionScreen: React.FC<QuestionerSelectionScreenProps>
             >
               <Text style={styles.confirmButtonText}>
                 {selectedPlayerIndex !== null 
-                  ? `${gameState.players[selectedPlayerIndex].name}から開始` 
-                  : '出題者を選択してください'}
+                  ? t('common.start') 
+                  : t('questioner.selectQuestioner')}
               </Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -226,4 +224,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-

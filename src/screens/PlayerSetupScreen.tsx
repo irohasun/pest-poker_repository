@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface PlayerSetupScreenProps {
   onComplete: (playerCount: number, playerNames: string[]) => void;
@@ -20,6 +21,7 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
   onComplete,
   onBack,
 }) => {
+  const { t } = useLanguage();
   const insets = useSafeAreaInsets();
   const [playerCount, setPlayerCount] = useState<number>(3);
   const [playerNames, setPlayerNames] = useState<string[]>(['', '', '', '', '', '']);
@@ -52,14 +54,14 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
     
     // 全員の名前が入力されているか
     if (namesToUse.some(name => name.trim() === '')) {
-      Alert.alert('エラー', 'すべてのプレイヤーの名前を入力してください');
+      Alert.alert(t('common.error'), t('setup.title') + ': ' + t('common.enterAllNames'));
       return;
     }
 
     // 名前の重複チェック
     const uniqueNames = new Set(namesToUse.map(name => name.trim().toLowerCase()));
     if (uniqueNames.size !== namesToUse.length) {
-      Alert.alert('エラー', '同じ名前は使用できません');
+      Alert.alert(t('common.error'), t('common.duplicateNames'));
       return;
     }
 
@@ -71,14 +73,14 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
         <View style={[styles.header, { paddingTop: Math.max(insets.top / 8, 4) }]}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
-            <Text style={styles.headerButtonText}>◀ 戻る</Text>
+            <Text style={styles.headerButtonText}>◀ {t('common.back')}</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>プレイヤー登録</Text>
+          <Text style={styles.headerTitle}>{t('setup.title')}</Text>
           <View style={styles.headerSpacer} />
         </View>
 
         <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-          <Text style={styles.sectionTitle}>人数を選択</Text>
+          <Text style={styles.sectionTitle}>{t('setup.minPlayers')}</Text>
           <View style={styles.playerCountContainer}>
             {[2, 3, 4, 5, 6].map((count) => (
               <TouchableOpacity
@@ -96,21 +98,21 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
                     playerCount === count && styles.playerCountButtonTextActive,
                   ]}
                 >
-                  {count}人
+                  {t('common.players', { count })}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
 
-          <Text style={styles.sectionTitle}>プレイヤー名を入力</Text>
+          <Text style={styles.sectionTitle}>{t('setup.placeholder')}</Text>
           {Array.from({ length: playerCount }).map((_, index) => (
             <View key={index} style={styles.nameInputContainer}>
-              <Text style={styles.nameLabel}>プレイヤー{index + 1}</Text>
+              <Text style={styles.nameLabel}>{t('setup.placeholder')} {index + 1}</Text>
               <TextInput
                 style={styles.nameInput}
                 value={playerNames[index]}
                 onChangeText={(text) => handleNameChange(index, text)}
-                placeholder={`プレイヤー${index + 1}の名前`}
+                placeholder={`${t('setup.placeholder')} ${index + 1}`}
                 placeholderTextColor="rgba(255, 255, 255, 0.4)"
                 maxLength={20}
               />
@@ -130,7 +132,7 @@ export const PlayerSetupScreen: React.FC<PlayerSetupScreenProps> = ({
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
             >
-              <Text style={styles.startButtonText}>ゲーム開始</Text>
+              <Text style={styles.startButtonText}>{t('setup.startGame')}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -254,4 +256,3 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
 });
-

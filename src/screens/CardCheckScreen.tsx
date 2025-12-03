@@ -11,6 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { GameState, CARD_INFO } from '../types/game';
 import { ScreenLayout } from '../components/ScreenLayout';
 import { COLORS, LAYOUT } from '../constants/theme';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface CardCheckScreenProps {
   gameState: GameState;
@@ -23,6 +24,7 @@ export const CardCheckScreen: React.FC<CardCheckScreenProps> = ({
   onNext,
   onBack,
 }) => {
+  const { t, getCardName } = useLanguage();
   const [showWarning, setShowWarning] = useState(true);
   const [showCard, setShowCard] = useState(false);
 
@@ -49,15 +51,10 @@ export const CardCheckScreen: React.FC<CardCheckScreenProps> = ({
         >
           <Text style={styles.warningTitle}>⚠️</Text>
             <Text style={styles.warningText}>
-              これから実際のカードを{'\n'}
-              確認します{'\n'}
-              {'\n'}
-              他のプレイヤーには{'\n'}
-              見えないように{'\n'}
-              注意してください
+              {t('initialHand.description')}
             </Text>
           <Text style={styles.tapToRevealText}>
-            タップしてカードを確認
+            {t('initialHand.confirm')}
             </Text>
         </TouchableOpacity>
       </ScreenLayout>
@@ -66,7 +63,7 @@ export const CardCheckScreen: React.FC<CardCheckScreenProps> = ({
 
   return (
     <ScreenLayout
-      title="⚠️ 他の人は見ないで！"
+      title={`⚠️ ${t('initialHand.description').split('\n')[0]}`} // Use part of description or add new key
       onBack={onBack}
       style={{ paddingBottom: 0 }}
     >
@@ -80,26 +77,25 @@ export const CardCheckScreen: React.FC<CardCheckScreenProps> = ({
           contentContainerStyle={styles.contentContainer}
           scrollEnabled={false}
         >
-          <Text style={styles.cardLabel}>実際のカードは...</Text>
+          <Text style={styles.cardLabel}>{t('judgment.actually')}</Text>
 
           <View style={styles.cardContainer}>
             <Image source={actualCard.image} style={styles.cardImage} resizeMode="contain" />
-            <Text style={styles.cardName}>「{actualCard.name}」でした</Text>
+            <Text style={styles.cardName}>「{getCardName(actualCard.type)}」</Text>
           </View>
 
           <View style={styles.comparisonSection}>
-            <Text style={styles.comparisonLabel}>前の宣言: 「{declaredCard.name}」</Text>
+            <Text style={styles.comparisonLabel}>{t('judgment.wasLie')}? 「{getCardName(declaredCard.type)}」</Text>
             <Text style={[styles.comparisonResult, isTruth ? styles.truth : styles.lie]}>
-              → {isTruth ? '本当でした ✓' : '嘘でした ✗'}
+              → {isTruth ? t('judgment.wasTrue') : t('judgment.wasLie')}
             </Text>
           </View>
 
           <Text style={styles.nextStepText}>
-            これから次の人に{'\n'}
-            何を宣言するか決めます
+            {t('judgment.pass')}
           </Text>
           <Text style={styles.tapToRevealText}>
-            タップして次へ
+            {t('common.next')}
           </Text>
         </ScrollView>
           </TouchableOpacity>
@@ -203,4 +199,3 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
 });
-

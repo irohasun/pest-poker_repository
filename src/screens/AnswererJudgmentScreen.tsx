@@ -27,6 +27,7 @@ import { canPassToOthers } from '../utils/gameLogic';
 import { CARD_INFO } from '../types/game';
 import { ScreenLayout } from '../components/ScreenLayout';
 import { COLORS, LAYOUT } from '../constants/theme';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const BACKSIDE_IMAGE = require('../../assets/cards/backside.png');
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -54,6 +55,7 @@ export const AnswererJudgmentScreen: React.FC<AnswererJudgmentScreenProps> = ({
   onReturnToTitle,
   onEndGame,
 }) => {
+  const { t, getCardName } = useLanguage();
   const [showResult, setShowResult] = useState(false);
   const [judgment, setJudgment] = useState<'believe' | 'doubt' | null>(null);
   const flipAnim = useSharedValue(0);
@@ -214,7 +216,7 @@ export const AnswererJudgmentScreen: React.FC<AnswererJudgmentScreenProps> = ({
 
   return (
     <ScreenLayout
-      title={`${answerer.name}さんの番です`}
+      title={t('gameMain.turn', { name: answerer.name })}
       onBack={onBack}
       style={{ paddingBottom: 0 }}
       onPause={onPause}
@@ -225,10 +227,10 @@ export const AnswererJudgmentScreen: React.FC<AnswererJudgmentScreenProps> = ({
           <View style={styles.swipeContainer}>
             <View style={styles.actionLabelsContainer}>
                <Animated.View style={[styles.actionLabel, styles.doubtLabel, leftActionOpacity]}>
-                 <Text style={styles.actionLabelText}>嘘</Text>
+                 <Text style={styles.actionLabelText}>{t('judgment.doubt')}</Text>
                </Animated.View>
                <Animated.View style={[styles.actionLabel, styles.believeLabel, rightActionOpacity]}>
-                 <Text style={styles.actionLabelText}>本当</Text>
+                 <Text style={styles.actionLabelText}>{t('judgment.believe')}</Text>
                </Animated.View>
             </View>
 
@@ -238,10 +240,10 @@ export const AnswererJudgmentScreen: React.FC<AnswererJudgmentScreenProps> = ({
                   <Animated.View style={[styles.cardFace, animatedFlipBackStyle]}>
                     <Image source={BACKSIDE_IMAGE} style={styles.declarationImage} resizeMode="contain" />
                     <Text style={styles.declarationText}>
-                        「これは{declaredCard.name}です」
+                        {t('judgment.description', { card: getCardName(declaredCard.type) })}
                     </Text>
                     <Text style={styles.swipeHintText}>
-                        ← 嘘　　本当 →
+                        ← {t('judgment.doubt')}　　{t('judgment.believe')} →
                     </Text>
                   </Animated.View>
 
@@ -250,8 +252,8 @@ export const AnswererJudgmentScreen: React.FC<AnswererJudgmentScreenProps> = ({
                       <Animated.View style={[styles.cardFace, styles.cardFaceFront, animatedFlipFrontStyle]}>
                           <Image source={actualCard.image} style={styles.declarationImage} resizeMode="contain" />
                           <Text style={styles.declarationText}>
-                              実際は...{'\n'}
-                              「{actualCard.name}」
+                              {t('judgment.actually')}{'\n'}
+                              「{getCardName(actualCard.type)}」
                           </Text>
                           {judgment && (
                               <View style={[
@@ -259,10 +261,10 @@ export const AnswererJudgmentScreen: React.FC<AnswererJudgmentScreenProps> = ({
                                   isCorrectJudgment ? styles.correctBadge : styles.incorrectBadge
                               ]}>
                                   <Text style={styles.judgmentResultText}>
-                                      {isCorrectJudgment ? '✓ 正解！' : '✗ 不正解'}
+                                      {isCorrectJudgment ? t('judgment.correct') : t('judgment.incorrect')}
                                   </Text>
                                   <Text style={styles.judgmentDetailText}>
-                                      {isClaimTrue ? '宣言は本当でした' : '宣言は嘘でした'}
+                                      {isClaimTrue ? t('judgment.wasTrue') : t('judgment.wasLie')}
                                   </Text>
                               </View>
                           )}
@@ -273,13 +275,13 @@ export const AnswererJudgmentScreen: React.FC<AnswererJudgmentScreenProps> = ({
           </View>
 
           <View style={styles.situationSection}>
-            <Text style={styles.sectionTitle}>場の状況</Text>
+            <Text style={styles.sectionTitle}>{t('gameMain.othersHand')}</Text>
             {gameState.players.map((player, index) => {
               let role = undefined;
               if (index === gameState.currentTurn?.questioner) {
-                role = '宣言者';
+                role = t('role.questioner');
               } else if (index === gameState.currentTurn?.answerer) {
-                role = '回答者';
+                role = t('role.answerer');
               }
               
               return (
@@ -308,7 +310,7 @@ export const AnswererJudgmentScreen: React.FC<AnswererJudgmentScreenProps> = ({
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
               >
-                <Text style={styles.nextButtonText}>次へ（引き取り画面）</Text>
+                <Text style={styles.nextButtonText}>{t('common.next')}</Text>
               </LinearGradient>
             </TouchableOpacity>
           ) : (
@@ -325,7 +327,7 @@ export const AnswererJudgmentScreen: React.FC<AnswererJudgmentScreenProps> = ({
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
             >
-              <Text style={styles.judgmentButtonText}>他の人に渡す</Text>
+              <Text style={styles.judgmentButtonText}>{t('judgment.pass')}</Text>
             </LinearGradient>
           </TouchableOpacity>
           )}

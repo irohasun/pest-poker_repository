@@ -7,11 +7,12 @@ import {
   ScrollView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { GameState, CARD_INFO } from '../types/game';
+import { GameState } from '../types/game';
 import { PlayerStatus } from '../components/PlayerStatus';
 import { startTurn } from '../utils/gameLogic';
 import { ScreenLayout } from '../components/ScreenLayout';
 import { COLORS, LAYOUT, TIMING } from '../constants/theme';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface GameMainScreenProps {
   gameState: GameState;
@@ -32,6 +33,7 @@ export const GameMainScreen: React.FC<GameMainScreenProps> = ({
   onReturnToTitle,
   onEndGame,
 }) => {
+  const { t, getCardName } = useLanguage();
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
   if (!currentPlayer) {
     return null; // 安全のため
@@ -76,7 +78,7 @@ export const GameMainScreen: React.FC<GameMainScreenProps> = ({
 
   return (
     <ScreenLayout
-      title={`ターン: ${gameState.turnNumber + 1}`}
+      title={t('gameMain.turn', { name: gameState.players[gameState.currentPlayerIndex].name })}
       style={{ paddingBottom: 0 }}
       onBack={undefined} // No back button on main screen usually
       onPause={onPause}
@@ -84,7 +86,7 @@ export const GameMainScreen: React.FC<GameMainScreenProps> = ({
       onEndGame={onEndGame}
     >
         <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-          <Text style={styles.sectionTitle}>📊 現在の状況</Text>
+          <Text style={styles.sectionTitle}>{t('gameMain.currentSituation')}</Text>
 
           {gameState.players.map((player, index) => (
             <PlayerStatus
@@ -99,11 +101,11 @@ export const GameMainScreen: React.FC<GameMainScreenProps> = ({
         {isAnswerer && gameState.currentTurn && (
           <View style={styles.bottomBar}>
             <Text style={styles.turnInfo}>
-              【{currentPlayer.name}さんの番です】
+              {t('gameMain.turn', { name: currentPlayer.name })}
             </Text>
             <Text style={styles.declarationText}>
               {gameState.currentTurn.declaredAs && gameState.players[gameState.currentTurn.questioner]
-                ? `${gameState.players[gameState.currentTurn.questioner].name}さん\n「これは${CARD_INFO[gameState.currentTurn.declaredAs].name}です」`
+                ? `${t('pass.passFrom', { name: gameState.players[gameState.currentTurn.questioner].name })}\n${t('judgment.description', { card: getCardName(gameState.currentTurn.declaredAs) })}`
                 : ''}
             </Text>
             <TouchableOpacity
@@ -117,7 +119,7 @@ export const GameMainScreen: React.FC<GameMainScreenProps> = ({
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
               >
-                <Text style={styles.actionButtonText}>判定する</Text>
+                <Text style={styles.actionButtonText}>{t('gameMain.judge')}</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>

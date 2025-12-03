@@ -16,6 +16,7 @@ import {
   showInterstitialAd,
   isInterstitialAdReady,
 } from '../utils/adManager';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface GameEndScreenProps {
   gameState: GameState;
@@ -32,6 +33,7 @@ export const GameEndScreen: React.FC<GameEndScreenProps> = ({
   onChangePlayerCount,
   onReturnToTitle,
 }) => {
+  const { t } = useLanguage();
   const insets = useSafeAreaInsets();
   // 敗者を取得（isEliminatedがtrueのプレイヤー）
   const loser = gameState.players.find(player => player.isEliminated);
@@ -108,7 +110,7 @@ export const GameEndScreen: React.FC<GameEndScreenProps> = ({
     <LinearGradient colors={['#1E1E1E', '#121212', '#0A0A0A']} style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
         <View style={[styles.header, { paddingTop: Math.max(insets.top / 8, 4) }]}>
-          <Text style={styles.headerTitle}>ゲーム終了</Text>
+          <Text style={styles.headerTitle}>{t('gameEnd.title')}</Text>
         </View>
 
         <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
@@ -118,7 +120,7 @@ export const GameEndScreen: React.FC<GameEndScreenProps> = ({
               colors={['rgba(198, 40, 40, 0.3)', 'rgba(198, 40, 40, 0.1)']}
               style={styles.loserSection}
             >
-              <Text style={styles.sectionLabel}>敗者</Text>
+              <Text style={styles.sectionLabel}>{t('gameEnd.loser')}</Text>
               <Text style={styles.loserName}>{loser.name}</Text>
               <PlayerStatus
                 player={loser}
@@ -130,7 +132,7 @@ export const GameEndScreen: React.FC<GameEndScreenProps> = ({
           {/* 勝者表示 */}
           {winners.length > 0 && (
             <View style={styles.winnersSection}>
-              <Text style={styles.sectionLabel}>勝者</Text>
+              <Text style={styles.sectionLabel}>{t('gameEnd.winner')}</Text>
               <View style={styles.winnersList}>
                 {winners.map((winner) => (
                   <View key={winner.id} style={styles.winnerItem}>
@@ -152,9 +154,9 @@ export const GameEndScreen: React.FC<GameEndScreenProps> = ({
 
           {/* ゲーム統計情報 */}
           <View style={styles.statsSection}>
-            <Text style={styles.sectionLabel}>ゲーム統計</Text>
+            <Text style={styles.sectionLabel}>{t('gameEnd.stats')}</Text>
             <View style={styles.statsRow}>
-              <Text style={styles.statsLabel}>総ターン数:</Text>
+              <Text style={styles.statsLabel}>{t('gameEnd.totalTurns')}</Text>
               <Text style={styles.statsValue}>{gameState.turnNumber}</Text>
             </View>
           </View>
@@ -172,7 +174,7 @@ export const GameEndScreen: React.FC<GameEndScreenProps> = ({
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
             >
-              <Text style={styles.buttonText}>もう一度プレイ</Text>
+              <Text style={styles.buttonText}>{t('gameEnd.playAgain')}</Text>
             </LinearGradient>
           </TouchableOpacity>
 
@@ -187,7 +189,7 @@ export const GameEndScreen: React.FC<GameEndScreenProps> = ({
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
             >
-              <Text style={styles.buttonText}>人数を変更してプレイ</Text>
+              <Text style={styles.buttonText}>{t('gameEnd.changePlayers')}</Text>
             </LinearGradient>
           </TouchableOpacity>
 
@@ -202,7 +204,7 @@ export const GameEndScreen: React.FC<GameEndScreenProps> = ({
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
             >
-              <Text style={styles.buttonTextSecondary}>タイトルに戻る</Text>
+              <Text style={styles.buttonTextSecondary}>{t('gameEnd.toTitle')}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>

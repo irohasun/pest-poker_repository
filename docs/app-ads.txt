@@ -1,0 +1,2 @@
+# app-ads.txt file for com.koyake.pestpoker
+google.com, pub-8691757518674753, DIRECT, f08c47fec0942fa0

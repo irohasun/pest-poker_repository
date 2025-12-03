@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Player, CardType } from '../types/game';
 import { CardStack } from './CardStack';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface PlayerStatusProps {
   player: Player;
@@ -11,6 +12,7 @@ interface PlayerStatusProps {
 }
 
 export const PlayerStatus: React.FC<PlayerStatusProps> = ({ player, isCurrentPlayer, role, highlightCardType }) => {
+  const { t } = useLanguage();
   const openCardEntries = Object.entries(player.openCards);
   const hasOpenCards = openCardEntries.length > 0;
 
@@ -29,12 +31,12 @@ export const PlayerStatus: React.FC<PlayerStatusProps> = ({ player, isCurrentPla
           </Text>
           {player.isEliminated && (
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>脱落</Text>
+              <Text style={styles.badgeText}>{t('common.eliminated')}</Text>
             </View>
           )}
           {isDangerZone && !player.isEliminated && (
             <View style={[styles.badge, styles.dangerBadge]}>
-              <Text style={styles.badgeText}>危険</Text>
+              <Text style={styles.badgeText}>{t('common.danger')}</Text>
             </View>
           )}
         </View>
@@ -45,7 +47,7 @@ export const PlayerStatus: React.FC<PlayerStatusProps> = ({ player, isCurrentPla
           </View>
         )}
 
-        <Text style={styles.handCount}>手札: {player.handCount}枚</Text>
+        <Text style={styles.handCount}>{t('gameMain.handCount', { count: player.handCount })}</Text>
       </View>
 
       <View style={styles.cardsContainer}>
@@ -67,7 +69,7 @@ export const PlayerStatus: React.FC<PlayerStatusProps> = ({ player, isCurrentPla
           </View>
         ) : (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>引き取ったカードなし</Text>
+            <Text style={styles.emptyText}>{t('gameMain.noCardsReceived')}</Text>
           </View>
         )}
       </View>

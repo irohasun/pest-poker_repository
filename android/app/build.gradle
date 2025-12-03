@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.yourcompany.bluffcardgame'
+    namespace 'com.koyake.pestpoker'
     defaultConfig {
-        applicationId 'com.yourcompany.bluffcardgame'
+        applicationId 'com.koyake.pestpoker'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -11,6 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { GameState, CardType } from '../types/game';
 import { PlayerStatus } from '../components/PlayerStatus';
 import { checkPlayerElimination } from '../utils/gameLogic';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ResultScreenProps {
   gameState: GameState;
@@ -25,6 +26,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
   receivedCardType,
   onNext,
 }) => {
+  const { t } = useLanguage();
   const insets = useSafeAreaInsets();
   const cardRecipient = gameState.players[cardRecipientIndex];
   const nextQuestioner = cardRecipient; // カードを引き取った人が次の出題者
@@ -41,7 +43,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
     <LinearGradient colors={['#1E1E1E', '#121212', '#0A0A0A']} style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
         <View style={[styles.header, { paddingTop: Math.max(insets.top / 8, 4) }]}>
-          <Text style={styles.headerTitle}>ターン{gameState.turnNumber}の結果</Text>
+          <Text style={styles.headerTitle}>{t('result.turnResult', { number: gameState.turnNumber })}</Text>
         </View>
 
         <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
@@ -50,13 +52,12 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
             style={styles.summarySection}
           >
             <Text style={styles.summaryText}>
-              <Text style={styles.recipientName}>{cardRecipient.name}</Text>さんが{'\n'}
-              カードを引き取りました
+              {t('result.receivedCard', { name: cardRecipient.name })}
             </Text>
           </LinearGradient>
 
           <View style={styles.situationSection}>
-            <Text style={styles.sectionTitle}>現在の状況</Text>
+            <Text style={styles.sectionTitle}>{t('gameMain.othersHand')}</Text>
             {gameState.players.map((player, index) => {
               // カードを引き取ったプレイヤーの場合、引き取られたカードの種類を赤枠で強調表示
               let highlightCardType: CardType | undefined;
@@ -90,7 +91,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
               end={{ x: 1, y: 1 }}
             >
               <Text style={styles.nextButtonText}>
-                次のターンへ ({nextQuestioner.name}さんの番)
+                {t('result.nextTurn', { name: nextQuestioner.name })}
               </Text>
             </LinearGradient>
           </TouchableOpacity>

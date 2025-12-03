@@ -16,6 +16,7 @@ import { passCard } from '../utils/gameLogic';
 import { PlayerStatus } from '../components/PlayerStatus';
 import { ScreenLayout } from '../components/ScreenLayout';
 import { COLORS, LAYOUT } from '../constants/theme';
+import { useLanguage } from '../contexts/LanguageContext';
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -44,6 +45,7 @@ export const PassCardSelectionScreen: React.FC<PassCardSelectionScreenProps> = (
   onReturnToTitle,
   onEndGame,
 }) => {
+  const { t, getCardName } = useLanguage();
   const [activeStep, setActiveStep] = useState<SelectionStep>('opponent');
   const [selectedOpponentIndex, setSelectedOpponentIndex] = useState<number | null>(null);
   const [selectedDeclaration, setSelectedDeclaration] = useState<CardType | null>(null);
@@ -106,8 +108,7 @@ export const PassCardSelectionScreen: React.FC<PassCardSelectionScreenProps> = (
       {availablePlayers.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyText}>
-            渡せる相手がいません{'\n'}
-            判定してください
+            {t('pass.noOpponent')}
           </Text>
         </View>
       ) : (
@@ -146,7 +147,7 @@ export const PassCardSelectionScreen: React.FC<PassCardSelectionScreenProps> = (
               activeOpacity={0.7}
             >
               <Image source={cardInfo.image} style={styles.declarationImage} resizeMode="contain" />
-              <Text style={styles.cardName}>{cardInfo.name}</Text>
+              <Text style={styles.cardName}>{getCardName(cardInfo.type)}</Text>
             </TouchableOpacity>
           );
         })}
@@ -183,7 +184,7 @@ export const PassCardSelectionScreen: React.FC<PassCardSelectionScreenProps> = (
       >
         <View style={[styles.declarationButton, styles.declarationButtonSelected]}>
           <Image source={cardInfo.image} style={styles.declarationImage} resizeMode="contain" />
-          <Text style={styles.cardName}>{cardInfo.name}</Text>
+          <Text style={styles.cardName}>{getCardName(cardInfo.type)}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -199,17 +200,17 @@ export const PassCardSelectionScreen: React.FC<PassCardSelectionScreenProps> = (
 
   return (
     <ScreenLayout
-      title="他の人に渡す"
+      title={t('judgment.pass')}
       onBack={onBack}
       style={{ paddingBottom: 0 }}
       onPause={onPause}
       onReturnToTitle={onReturnToTitle}
       onEndGame={onEndGame}
     >
-      {/* 正解のカードと前の宣言結果を画面上部に固定表示 */}
+      {/* 正解のカードと前の人間の宣言結果を取得 */}
       <View style={styles.infoBar}>
         <View style={styles.infoItem}>
-          <Text style={styles.infoLabel}>正解のカード</Text>
+          <Text style={styles.infoLabel}>{t('judgment.actually')}</Text>
           {actualCard && (
             <View style={styles.infoCardContainer}>
               <Image 
@@ -217,14 +218,14 @@ export const PassCardSelectionScreen: React.FC<PassCardSelectionScreenProps> = (
                 style={styles.infoCardImage} 
                 resizeMode="contain" 
               />
-              <Text style={styles.infoCardName}>{CARD_INFO[actualCard].name}</Text>
+              <Text style={styles.infoCardName}>{getCardName(actualCard)}</Text>
             </View>
           )}
         </View>
         <View style={styles.infoDivider} />
         <View style={styles.infoItem}>
           <Text style={styles.infoLabel}>
-            {previousPlayer ? `${previousPlayer.name}さんの宣言` : '前の宣言'}
+            {previousPlayer ? t('pass.received', { name: previousPlayer.name }) : t('pass.received', { name: '?' })}
           </Text>
           {previousDeclaration && (
             <View style={styles.infoCardContainer}>
@@ -233,7 +234,7 @@ export const PassCardSelectionScreen: React.FC<PassCardSelectionScreenProps> = (
                 style={styles.infoCardImage} 
                 resizeMode="contain" 
               />
-              <Text style={styles.infoCardName}>{CARD_INFO[previousDeclaration].name}</Text>
+              <Text style={styles.infoCardName}>{getCardName(previousDeclaration)}</Text>
             </View>
           )}
         </View>
@@ -251,7 +252,7 @@ export const PassCardSelectionScreen: React.FC<PassCardSelectionScreenProps> = (
             onPress={() => toggleStep('opponent')}
             activeOpacity={0.8}
           >
-            <Text style={styles.stepTitle}>1. 誰に渡しますか？</Text>
+            <Text style={styles.stepTitle}>{t('questioner.selectOpponent')}</Text>
           </TouchableOpacity>
           {activeStep === 'opponent' ? renderOpponentSelection() : renderSelectedOpponentPreview()}
 
@@ -262,7 +263,7 @@ export const PassCardSelectionScreen: React.FC<PassCardSelectionScreenProps> = (
             activeOpacity={0.8}
             disabled={!isStepComplete('opponent') && activeStep !== 'declaration'}
           >
-            <Text style={[styles.stepTitle, !isStepComplete('opponent') && styles.stepTitleDisabled]}>2. 何だと宣言しますか？</Text>
+            <Text style={[styles.stepTitle, !isStepComplete('opponent') && styles.stepTitleDisabled]}>{t('questioner.selectDeclaration')}</Text>
           </TouchableOpacity>
           {activeStep === 'declaration' ? renderDeclarationSelection() : renderSelectedDeclarationPreview()}
         </View>
@@ -284,7 +285,7 @@ export const PassCardSelectionScreen: React.FC<PassCardSelectionScreenProps> = (
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
-            <Text style={styles.confirmButtonText}>決定して渡す</Text>
+            <Text style={styles.confirmButtonText}>{t('questioner.confirmPass')}</Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>

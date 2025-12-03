@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TouchableOpacity, ImageBackground, Dimensions, Image } from 'react-native';
+import { StyleSheet, TouchableOpacity, ImageBackground, Dimensions, Image, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface TitleScreenProps {
   onStartGame: () => void;
@@ -20,6 +21,7 @@ const START_BUTTON_CONFIG = {
 };
 
 export const TitleScreen: React.FC<TitleScreenProps> = ({ onStartGame, onShowRules }) => {
+  const { language, setLanguage } = useLanguage();
   const [buttonStyle, setButtonStyle] = useState({
     bottom: 0,
     left: 0,
@@ -106,6 +108,21 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({ onStartGame, onShowRul
           onPress={onStartGame}
           activeOpacity={0.8}
         />
+
+        <View style={styles.languageContainer}>
+          <TouchableOpacity
+            style={[styles.langButton, language === 'ja' && styles.activeLangButton]}
+            onPress={() => setLanguage('ja')}
+          >
+            <Text style={[styles.langText, language === 'ja' && styles.activeLangText]}>日本語</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.langButton, language === 'en' && styles.activeLangButton]}
+            onPress={() => setLanguage('en')}
+          >
+            <Text style={[styles.langText, language === 'en' && styles.activeLangText]}>English</Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     </ImageBackground>
   );
@@ -126,5 +143,32 @@ const styles = StyleSheet.create({
   startButton: {
     position: 'absolute',
     backgroundColor: 'transparent', // 透明
+  },
+  languageContainer: {
+    position: 'absolute',
+    bottom: 40,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 40,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  langButton: {
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 32,
+  },
+  activeLangButton: {
+    backgroundColor: '#FFFFFF',
+  },
+  langText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 20,
+  },
+  activeLangText: {
+    color: '#000000',
   },
 });

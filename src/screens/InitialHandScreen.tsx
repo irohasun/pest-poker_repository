@@ -10,6 +10,7 @@ import {
 import { Player, CardType, CARD_INFO } from '../types/game';
 import { ScreenLayout } from '../components/ScreenLayout';
 import { COLORS, LAYOUT } from '../constants/theme';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface InitialHandScreenProps {
   players: Player[];
@@ -30,6 +31,7 @@ export const InitialHandScreen: React.FC<InitialHandScreenProps> = ({
   onReturnToTitle,
   onEndGame,
 }) => {
+  const { t, getCardName } = useLanguage();
   const [showWarning, setShowWarning] = useState(true);
   const [showHand, setShowHand] = useState(false);
   const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
@@ -81,7 +83,7 @@ export const InitialHandScreen: React.FC<InitialHandScreenProps> = ({
     return <ScreenLayout hideHeader onPause={onPause} onReturnToTitle={onReturnToTitle} onEndGame={onEndGame}><View /></ScreenLayout>;
   }
 
-  if (showWarning) {
+    if (showWarning) {
     return (
       <ScreenLayout hideHeader onPause={onPause} onReturnToTitle={onReturnToTitle} onEndGame={onEndGame}>
         <TouchableOpacity 
@@ -90,15 +92,13 @@ export const InitialHandScreen: React.FC<InitialHandScreenProps> = ({
           activeOpacity={0.9}
         >
           <Text style={styles.warningTitle}>
-            {currentPlayer.name}さん{'\n'}
-            に渡してください
+            {t('initialHand.title', { name: currentPlayer.name })}
           </Text>
           <Text style={styles.warningText}>
-            手札を確認します{'\n'}
-            他のプレイヤーに見せないように
+            {t('initialHand.description')}
           </Text>
           <Text style={styles.tapToRevealText}>
-            タップして手札を確認
+            {t('initialHand.confirm')}
           </Text>
         </TouchableOpacity>
       </ScreenLayout>
@@ -107,16 +107,16 @@ export const InitialHandScreen: React.FC<InitialHandScreenProps> = ({
 
   return (
     <ScreenLayout 
-      title={`${currentPlayer.name}さんの手札 (${currentPlayer.handCount}枚)`}
+      title={`${t('initialHand.title', { name: currentPlayer.name })} (${t('gameMain.handCount', { count: currentPlayer.handCount })})`}
       style={{ paddingBottom: 0 }} // Override to allow bottom bar
       onPause={onPause}
       onReturnToTitle={onReturnToTitle}
       onEndGame={onEndGame}
     >
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-        <Text style={styles.warningText}>⚠️ 他の人は見ないで！</Text>
+        <Text style={styles.warningText}>⚠️ {t('initialHand.description')}</Text>
         <Text style={styles.instructionText}>
-          場に出すカードを1枚選んでください
+          {t('questioner.selectCard')}
         </Text>
 
         {Object.entries(handByType).map(([cardType, count]) => {
@@ -125,7 +125,7 @@ export const InitialHandScreen: React.FC<InitialHandScreenProps> = ({
           return (
             <View key={cardType} style={styles.cardGroup}>
               <View style={styles.cardGroupHeader}>
-                <Text style={styles.cardTypeName}>{cardInfo.name}</Text>
+                <Text style={styles.cardTypeName}>{getCardName(cardType as CardType)}</Text>
                 <Text style={styles.cardCount}>×{cardCount}</Text>
               </View>
               <View style={styles.cardRow}>
@@ -153,7 +153,7 @@ export const InitialHandScreen: React.FC<InitialHandScreenProps> = ({
         {selectedCard && (
           <View style={styles.selectedCardInfo}>
             <Text style={styles.selectedCardText}>
-              選択中: {CARD_INFO[selectedCard].name}
+              {t('common.selected')} {getCardName(selectedCard)}
             </Text>
           </View>
         )}
@@ -174,7 +174,7 @@ export const InitialHandScreen: React.FC<InitialHandScreenProps> = ({
             { backgroundColor: selectedCard ? COLORS.dangerDark : '#666666' }
           ]}>
             <Text style={styles.confirmButtonText}>
-              {selectedCard ? '決定(場に出す)' : 'カードを選択してください'}
+              {selectedCard ? t('common.next') : t('questioner.selectCard')}
             </Text>
           </View>
         </TouchableOpacity>

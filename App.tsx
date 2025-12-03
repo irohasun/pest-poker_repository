@@ -20,8 +20,17 @@ import { GameEndScreen } from './src/screens/GameEndScreen';
 import { useGameFlow } from './src/hooks/useGameFlow';
 import { COLORS } from './src/constants/theme';
 import { initializeInterstitialAd } from './src/utils/adManager';
+import { LanguageProvider } from './src/contexts/LanguageContext';
 
 export default function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
+  );
+}
+
+function AppContent() {
   const {
     gameState,
     currentScreen,

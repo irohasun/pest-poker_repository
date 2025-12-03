@@ -14,10 +14,11 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.bluffcardgame",
+      "bundleIdentifier": "com.koyake.pestpoker",
       "buildNumber": "1.0.0",
       "infoPlist": {
-        "UIUserInterfaceStyle": "Dark"
+        "UIUserInterfaceStyle": "Dark",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -25,7 +26,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#121212"
       },
-      "package": "com.yourcompany.bluffcardgame",
+      "package": "com.koyake.pestpoker",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
@@ -34,6 +35,13 @@
     },
     "plugins": [
       "expo-asset",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "android_app_id": "ca-app-pub-3940256099942544~3347511713",
+          "ios_app_id": "ca-app-pub-3940256099942544~1458002511"
+        }
+      ],
       [
         "react-native-google-mobile-ads",
         {

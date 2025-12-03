@@ -11,6 +11,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient';
 import { GameState, CardType, CARD_INFO } from '../types/game';
 import { passCard } from '../utils/gameLogic';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface PassDeclarationScreenProps {
   gameState: GameState;
@@ -27,6 +28,7 @@ export const PassDeclarationScreen: React.FC<PassDeclarationScreenProps> = ({
   onNext,
   onBack,
 }) => {
+  const { t, getCardName } = useLanguage();
   const insets = useSafeAreaInsets();
   if (!gameState.currentTurn) return null;
 
@@ -44,15 +46,15 @@ export const PassDeclarationScreen: React.FC<PassDeclarationScreenProps> = ({
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
         <View style={[styles.header, { paddingTop: Math.max(insets.top / 8, 4) }]}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
-            <Text style={styles.headerButtonText}>◀ 戻る</Text>
+            <Text style={styles.headerButtonText}>◀ {t('common.back')}</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>何だと宣言しますか？</Text>
+          <Text style={styles.headerTitle}>{t('pass.declare')}</Text>
           <View style={styles.headerSpacer} />
         </View>
 
         <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
           <Text style={styles.opponentInfo}>
-            {opponent.name}さんに渡します
+            {t('pass.passTo', { name: opponent.name })}
           </Text>
 
           <View style={styles.cardGrid}>
@@ -64,7 +66,7 @@ export const PassDeclarationScreen: React.FC<PassDeclarationScreenProps> = ({
                 activeOpacity={0.7}
               >
                 <Image source={cardInfo.image} style={styles.cardImage} resizeMode="contain" />
-                <Text style={styles.cardName}>{cardInfo.name}</Text>
+                <Text style={styles.cardName}>{getCardName(cardInfo.type)}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -150,4 +152,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-

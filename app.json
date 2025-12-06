@@ -2,9 +2,9 @@
   "expo": {
     "name": "PEST POKER",
     "slug": "pest-poker",
-    "version": "1.0.0",
+    "version": "1.0.7",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon-v2.png",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.koyake.pestpoker",
-      "buildNumber": "1.0.0",
+      "buildNumber": "1.0.2",
       "infoPlist": {
         "UIUserInterfaceStyle": "Dark",
         "ITSAppUsesNonExemptEncryption": false
@@ -35,13 +35,6 @@
     },
     "plugins": [
       "expo-asset",
-      [
-        "react-native-google-mobile-ads",
-        {
-          "android_app_id": "ca-app-pub-3940256099942544~3347511713",
-          "ios_app_id": "ca-app-pub-3940256099942544~1458002511"
-        }
-      ],
       [
         "react-native-google-mobile-ads",
         {
